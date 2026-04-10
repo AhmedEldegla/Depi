@@ -1,4 +1,4 @@
-﻿namespace Depi.Data
+﻿namespace Depi.Application
 {
     public class Class1
     {

@@ -1,4 +1,4 @@
-﻿namespace Depi.Shared
+﻿namespace Depi.Infrastructure
 {
     public class Class1
     {
