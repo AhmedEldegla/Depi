@@ -3,10 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DEPI.Domain.Common.Base;
 
-namespace Depi.Domain.Modules.Company_Profiles.Entities
+using DEPI.Domain.Modules.Identity.Entities;
+
+
+namespace DEPI.Domain.Modules.Companies.Entities
 {
-    internal class Companies
+    public class Company : AuditableEntity
     {
+        public string Name { get; set; } = string.Empty;
+        public string Industry {  get; set; } = string.Empty ;
+        public string Overview {  get; set; } = string.Empty ;
+
+        // Forign keys and Navigation Properties
+        //Remove the comments once all entities are created
+
+        public Guid OwnerUserId { get; set; }
+        public User? User { get; set; }
+        public Guid CountryId { get; set; }
+        //public Countries? Country { get; set; }
+        public Guid LogoMediaId { get; set; }
+        // public MediaFiles? LogoMedia { get; set; }
+
+
+        public ICollection<CompanyMember> CompanyMembers { get; set;} = new HashSet<CompanyMember>();
+
+
+
+
+
+
+
+
+
     }
 }
+
+
