@@ -14,7 +14,7 @@ public class IdentityVerification : AuditableEntity
 
     [Required]
     [MaxLength(50)]
-    public string DocumentNumber { get; set; } = string.Empty;
+    public string? DocumentNumber { get; set; }
 
     [MaxLength(500)]
     public string? FrontImageUrl { get; set; }
