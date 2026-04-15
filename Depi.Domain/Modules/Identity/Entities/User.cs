@@ -1,4 +1,5 @@
 using DEPI.Domain.Common.Base;
+using DEPI.Domain.Modules.Companies.Entities;
 using DEPI.Domain.Modules.Identity.Enums;
 
 namespace DEPI.Domain.Modules.Identity.Entities;
@@ -19,5 +20,10 @@ public class User : AuditableEntity
     public ICollection<Session> Sessions { get; set; } = new HashSet<Session>();
     public ICollection<SecurityLog> SecurityLogs { get; set; } = new HashSet<SecurityLog>();
     public ICollection<Token> Tokens { get; set; } = new HashSet<Token>();
+    //Add companies relations
+    public ICollection<Company> Companies { get; set; } = new HashSet<Company>();
+    public ICollection<CompanyMember> CompanyMembers { get; set; }
+= new HashSet<CompanyMember>();
+
 
 }
