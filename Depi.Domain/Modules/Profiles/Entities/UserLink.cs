@@ -13,5 +13,7 @@ namespace Depi.Domain.Modules.Profiles.Entities
         public LinkType Type { get; set; }
         public string Url { get; set; }
         public int DisplayOrder { get; set; }
+
+
     }
 }
