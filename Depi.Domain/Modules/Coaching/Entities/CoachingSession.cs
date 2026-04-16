@@ -23,5 +23,7 @@ namespace Depi.Domain.Modules.Coaching.Entities
         public string? Feedback { get; set; }
         public User Coach { get; set; } = null!;
         public User Student { get; set; } = null!;
+
+
     }
 }
