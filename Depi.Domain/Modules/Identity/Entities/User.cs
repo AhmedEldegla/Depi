@@ -1,11 +1,14 @@
+using Depi.Domain.Modules.ProjectProposalsDelivery.Entities;
 using DEPI.Domain.Common.Base;
 using DEPI.Domain.Modules.Companies.Entities;
 using DEPI.Domain.Modules.Identity.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace DEPI.Domain.Modules.Identity.Entities;
 
 public class User : AuditableEntity
 {
+    [EmailAddress]
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
@@ -24,6 +27,10 @@ public class User : AuditableEntity
     public ICollection<Company> Companies { get; set; } = new HashSet<Company>();
     public ICollection<CompanyMember> CompanyMembers { get; set; }
 = new HashSet<CompanyMember>();
+    // Add Project module Relations
+    public ICollection<Project> projects { get; set; } = new HashSet<Project>();
+
+
 
 
 }
