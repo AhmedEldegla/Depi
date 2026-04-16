@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
+
 namespace Depi.Domain.Modules.Payments.Entities
 {
     public class UserConnect : BaseEntity
