@@ -1,11 +1,14 @@
+using Depi.Domain.Modules.ProjectProposalsDelivery.Entities;
 using DEPI.Domain.Common.Base;
 using DEPI.Domain.Modules.Companies.Entities;
 using DEPI.Domain.Modules.Identity.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace DEPI.Domain.Modules.Identity.Entities;
 
 public class User : AuditableEntity
 {
+    [EmailAddress]
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
