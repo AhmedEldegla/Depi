@@ -27,10 +27,6 @@ public class User : AuditableEntity
     public ICollection<Company> Companies { get; set; } = new HashSet<Company>();
     public ICollection<CompanyMember> CompanyMembers { get; set; }
 = new HashSet<CompanyMember>();
-    // Add Project module Relations
-    public ICollection<Project> projects { get; set; } = new HashSet<Project>();
-
-
 
 
 }

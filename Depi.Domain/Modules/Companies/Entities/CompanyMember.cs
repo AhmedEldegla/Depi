@@ -18,7 +18,7 @@ namespace DEPI.Domain.Modules.Companies.Entities
         public Company? Company { get; set; }
 
         public Guid UserId { get; set; }
-        public User? User { get; set; }
+        public User User { get; set; }
 
 
 

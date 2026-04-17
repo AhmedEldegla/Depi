@@ -1,11 +1,11 @@
-﻿using Depi.Domain.Modules.ProjectProposalsDelivery.Entities;
-using DEPI.Domain.Common.Base;
-using DEPI.Domain.Modules.Identity.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DEPI.Domain.Common.Base;
+
+using DEPI.Domain.Modules.Identity.Entities;
 
 
 namespace DEPI.Domain.Modules.Companies.Entities
@@ -28,15 +28,6 @@ namespace DEPI.Domain.Modules.Companies.Entities
 
 
         public ICollection<CompanyMember> CompanyMembers { get; set;} = new HashSet<CompanyMember>();
-
-        // Add Project module Relations
-        public ICollection<Project> projects { get; set; } = new HashSet<Project>();
-
-
-
-
-
-
 
 
 
