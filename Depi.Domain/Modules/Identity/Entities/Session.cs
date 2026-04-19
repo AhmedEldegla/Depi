@@ -1,6 +1,7 @@
 namespace DEPI.Domain.Modules.Identity.Entities;
 
 using DEPI.Domain.Common.Base;
+using DEPI.Domain.Entities.Identity;
 
 public class Session : BaseEntity
 {
