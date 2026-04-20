@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using DEPI.Domain.Common.Base;
+using DEPI.Domain.Entities.Identity;
 using DEPI.Domain.Modules.Identity.Enums;
 
 namespace DEPI.Domain.Modules.Identity.Entities;
@@ -44,7 +45,7 @@ public class IdentityVerification : AuditableEntity
 
     public Guid? ReviewedByUserId { get; set; }
 
-    public virtual User? User { get; set; }
+    public  User? User { get; set; }
 
-    public virtual User? ReviewedByUser { get; set; }
+    public  User? ReviewedByUser { get; set; }
 }

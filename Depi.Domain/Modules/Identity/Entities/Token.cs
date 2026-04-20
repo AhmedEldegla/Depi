@@ -1,6 +1,7 @@
 namespace DEPI.Domain.Modules.Identity.Entities;
 
 using DEPI.Domain.Common.Base;
+using DEPI.Domain.Entities.Identity;
 using DEPI.Domain.Modules.Identity.Enums;
 
 public class Token : BaseEntity
