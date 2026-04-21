@@ -1,0 +1,46 @@
+name: Telegram Notifications
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Push
+        if: github.event_name == 'push'
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            🚀 Commit Update
+
+            👤 By: ${{ github.actor }}
+            📝 Commit Message:
+            ${{ github.event.head_commit.message }}
+
+            🌿 Branch: ${{ github.ref_name }}
+
+            https://github.com/${{ github.repository }}
+
+      - name: Notify Pull Request
+        if: github.event_name == 'pull_request'
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            🔥 Pull Request Update
+
+            👤 By: ${{ github.event.pull_request.user.login }}
+            📌 Title:
+            ${{ github.event.pull_request.title }}
+
+            🧭 Status: ${{ github.event.pull_request.merged == true && 'Merged ✅' || github.event.action }}
+
+            https://github.com/${{ github.repository }}
