@@ -1,4 +1,5 @@
-﻿using DEPI.Domain.Common.Base;
+﻿using Depi.Domain.Modules.Payments.Enums;
+using DEPI.Domain.Common.Base;
 using DEPI.Domain.Modules.Identity.Entities;
 using System;
 using System.Collections.Generic;
