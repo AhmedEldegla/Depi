@@ -1,0 +1,41 @@
+name: Discord Notifications
+
+on:
+  pull_request:
+    types: [opened, reopened, closed]
+  issues:
+    types: [opened, reopened, closed]
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send message to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          EVENT="${{ github.event_name }}"
+          ACTION="${{ github.event.action }}"
+
+          if [ "$EVENT" = "pull_request" ]; then
+            TITLE="${{ github.event.pull_request.title }}"
+            URL="${{ github.event.pull_request.html_url }}"
+            USER="${{ github.event.pull_request.user.login }}"
+            MSG="👀 PR ${ACTION}: ${TITLE} by ${USER} - ${URL}"
+          elif [ "$EVENT" = "issues" ]; then
+            TITLE="${{ github.event.issue.title }}"
+            URL="${{ github.event.issue.html_url }}"
+            USER="${{ github.event.issue.user.login }}"
+            MSG="🐞 Issue ${ACTION}: ${TITLE} by ${USER} - ${URL}"
+          elif [ "$EVENT" = "release" ]; then
+            TITLE="${{ github.event.release.name }}"
+            URL="${{ github.event.release.html_url }}"
+            MSG="🚀 Release published: ${TITLE} - ${URL}"
+          fi
+
+          jq -n --arg content "$MSG" '{content: $content}' \
+          | curl -H "Content-Type: application/json" \
+                 -d @- \
+                 "$DISCORD_WEBHOOK"
