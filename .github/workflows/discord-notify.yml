@@ -1,6 +1,9 @@
 name: Discord Notifications
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     types: [opened, reopened, closed]
   issues:
@@ -19,7 +22,9 @@ jobs:
           EVENT="${{ github.event_name }}"
           ACTION="${{ github.event.action }}"
 
-          if [ "$EVENT" = "pull_request" ]; then
+          if [ "$EVENT" = "push" ]; then
+            MSG="📦 New push to ${{ github.ref_name }} by ${{ github.actor }} - ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+          elif [ "$EVENT" = "pull_request" ]; then
             TITLE="${{ github.event.pull_request.title }}"
             URL="${{ github.event.pull_request.html_url }}"
             USER="${{ github.event.pull_request.user.login }}"
@@ -35,7 +40,6 @@ jobs:
             MSG="🚀 Release published: ${TITLE} - ${URL}"
           fi
 
-          jq -n --arg content "$MSG" '{content: $content}' \
-          | curl -H "Content-Type: application/json" \
-                 -d @- \
-                 "$DISCORD_WEBHOOK"
+          curl -H "Content-Type: application/json" \
+               -d "$(printf '{"content":"%s"}' "$MSG")" \
+               "$DISCORD_WEBHOOK"
