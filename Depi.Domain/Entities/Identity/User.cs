@@ -1,17 +1,23 @@
 namespace DEPI.Domain.Entities.Identity;
 
-using DEPI.Domain.Common.Base;
 using DEPI.Domain.Common.Events;
+using DEPI.Domain.Common.Messages;
 using DEPI.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 
-public class User : AuditableEntity
+public class User : IdentityUser<Guid>
 {
     private readonly List<IDomainEvent> _domainEvents = new();
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-    public string Email { get; private set; } = string.Empty;
-    public string PasswordHash { get; private set; } = string.Empty;
-    public string PasswordSalt { get; private set; } = string.Empty;
+    public Guid CreatedBy { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public Guid? UpdatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public bool IsDeleted { get; private set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
+
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
     public string FullName => $"{FirstName} {LastName}";
@@ -19,37 +25,22 @@ public class User : AuditableEntity
     public UserStatus Status { get; private set; } = UserStatus.Pending;
     public Gender Gender { get; private set; }
     public DateTime? DateOfBirth { get; private set; }
-    public string? PhoneNumber { get; private set; }
-    public string? ProfileImageUrl { get; private set; }
     public int? CountryId { get; private set; }
-    public bool IsEmailVerified { get; private set; }
-    public bool IsPhoneVerified { get; private set; }
     public bool IsIdentityVerified { get; private set; }
-    public bool IsTwoFactorEnabled { get; private set; }
-    public string? EmailVerificationToken { get; private set; }
-    public DateTime? EmailVerificationTokenExpiry { get; private set; }
-    public string? PhoneVerificationCode { get; private set; }
-    public DateTime? PhoneVerificationCodeExpiry { get; private set; }
-    public string? TwoFactorSecret { get; private set; }
-    public DateTime? LastLoginAt { get; private set; }
+    public string? ProfileImageUrl { get; private set; }
     public string? LastLoginIpAddress { get; private set; }
-    public int FailedLoginAttempts { get; private set; }
-    public DateTime? LockoutEndAt { get; private set; }
+    public DateTime? LastLoginAt { get; private set; }
     public string? RefreshToken { get; private set; }
     public DateTime? RefreshTokenExpiry { get; private set; }
-    public string? ResetToken { get; private set; }
-    public DateTime? ResetTokenExpiry { get; private set; }
-    public int SecurityStamp { get; private set; }
 
     public virtual ICollection<UserRole> UserRoles { get; private set; } = new List<UserRole>();
     public virtual ICollection<UserSession> Sessions { get; private set; } = new List<UserSession>();
 
-    private User() { }
+    private User() : base() { }
 
     public static User Create(
         string email,
-        string passwordHash,
-        string passwordSalt,
+        string userName,
         string firstName,
         string lastName,
         UserType userType,
@@ -59,22 +50,23 @@ public class User : AuditableEntity
         int? countryId = null)
     {
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Email مطلوب", nameof(email));
+            throw new ArgumentException(Strings.Validation.EmailRequired, nameof(email));
             
-        if (string.IsNullOrWhiteSpace(passwordHash))
-            throw new ArgumentException("Password hash مطلوب", nameof(passwordHash));
+        if (string.IsNullOrWhiteSpace(userName))
+            throw new ArgumentException(Strings.Validation.UserNameRequired, nameof(userName));
             
         if (string.IsNullOrWhiteSpace(firstName))
-            throw new ArgumentException("الاسم الأول مطلوب", nameof(firstName));
+            throw new ArgumentException(Strings.Validation.FirstNameRequired, nameof(firstName));
             
         if (string.IsNullOrWhiteSpace(lastName))
-            throw new ArgumentException("الاسم الأخير مطلوب", nameof(lastName));
+            throw new ArgumentException(Strings.Validation.LastNameRequired, nameof(lastName));
 
         var user = new User
         {
             Email = email.ToLowerInvariant().Trim(),
-            PasswordHash = passwordHash,
-            PasswordSalt = passwordSalt,
+            UserName = userName.ToLowerInvariant().Trim(),
+            NormalizedEmail = email.ToUpperInvariant().Trim(),
+            NormalizedUserName = userName.ToUpperInvariant().Trim(),
             FirstName = firstName.Trim(),
             LastName = lastName.Trim(),
             UserType = userType,
@@ -83,7 +75,12 @@ public class User : AuditableEntity
             PhoneNumber = phoneNumber?.Trim(),
             CountryId = countryId,
             Status = UserStatus.Pending,
-            SecurityStamp = Random.Shared.Next()
+            EmailConfirmed = false,
+            PhoneNumberConfirmed = false,
+            TwoFactorEnabled = false,
+            AccessFailedCount = 0,
+            LockoutEnd = null,
+            CreatedAt = DateTime.UtcNow
         };
 
         user.RaiseDomainEvent(new UserRegisteredEvent(
@@ -103,7 +100,7 @@ public class User : AuditableEntity
         int? countryId)
     {
         if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن تحديث مستخدم محذوف");
+            throw new InvalidOperationException(Strings.Errors.CannotUpdateDeleted);
             
         FirstName = firstName.Trim();
         LastName = lastName.Trim();
@@ -111,152 +108,26 @@ public class User : AuditableEntity
         DateOfBirth = dateOfBirth;
         PhoneNumber = phoneNumber?.Trim();
         CountryId = countryId;
-        SecurityStamp = Random.Shared.Next();
+        UpdatedAt = DateTime.UtcNow;
     }
 
-    public void ChangePassword(string newPasswordHash, string newPasswordSalt)
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن تغيير كلمة المرور");
-            
-        PasswordHash = newPasswordHash;
-        PasswordSalt = newPasswordSalt;
-        SecurityStamp = Random.Shared.Next();
-        InvalidateAllRefreshTokens();
-    }
-
-    public bool VerifyPassword(string hash, string salt)
-    {
-        return PasswordHash == hash && PasswordSalt == salt;
-    }
-
-    public void RecordSuccessfulLogin(string ipAddress)
+    public void UpdateLastLogin(string? ipAddress = null)
     {
         LastLoginAt = DateTime.UtcNow;
         LastLoginIpAddress = ipAddress;
-        FailedLoginAttempts = 0;
-        LockoutEndAt = null;
-    }
-
-    public void RecordFailedLogin()
-    {
-        FailedLoginAttempts++;
-        
-        if (FailedLoginAttempts >= 5)
-        {
-            LockoutEndAt = DateTime.UtcNow.AddMinutes(15);
-        }
-    }
-
-    public bool IsLockedOut => LockoutEndAt.HasValue && LockoutEndAt > DateTime.UtcNow;
-
-    public void VerifyEmail()
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن التحقق من بريد مستخدم محذوف");
-            
-        IsEmailVerified = true;
-        
-        if (Status == UserStatus.Pending)
-        {
-            Status = UserStatus.Active;
-        }
-    }
-
-    public void VerifyPhone()
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن التحقق من هاتف مستخدم محذوف");
-            
-        IsPhoneVerified = true;
     }
 
     public void VerifyIdentity()
     {
         if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن التحقق من هوية مستخدم محذوف");
+            throw new InvalidOperationException(Strings.Errors.CannotVerifyDeletedUser);
             
         IsIdentityVerified = true;
-        Status = UserStatus.Active;
-    }
-
-    public void GenerateEmailVerificationToken()
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن إنشاء رمز التحقق");
-            
-        EmailVerificationToken = Guid.NewGuid().ToString("N");
-        EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24);
-    }
-
-    public void GeneratePhoneVerificationCode()
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن إنشاء رمز التحقق");
-            
-        if (string.IsNullOrWhiteSpace(PhoneNumber))
-            throw new InvalidOperationException("رقم الهاتف مطلوب");
-            
-        PhoneVerificationCode = Random.Shared.Next(100000, 999999).ToString();
-        PhoneVerificationCodeExpiry = DateTime.UtcNow.AddMinutes(10);
-    }
-
-    public void ConfirmEmailVerification(string token)
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن تأكيد التحقق");
-            
-        if (string.IsNullOrWhiteSpace(token))
-            throw new ArgumentException("رمز التحقق مطلوب");
-            
-        if (EmailVerificationToken != token)
-            throw new InvalidOperationException("رمز التحقق غير صحيح");
-            
-        if (!EmailVerificationTokenExpiry.HasValue || EmailVerificationTokenExpiry < DateTime.UtcNow)
-            throw new InvalidOperationException("انتهت صلاحية رمز التحقق");
-            
-        IsEmailVerified = true;
-        EmailVerificationToken = null;
-        EmailVerificationTokenExpiry = null;
-    }
-
-    public void ConfirmPhoneVerification(string code)
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن تأكيد التحقق");
-            
-        if (string.IsNullOrWhiteSpace(code))
-            throw new ArgumentException("الكود مطلوب");
-            
-        if (PhoneVerificationCode != code)
-            throw new InvalidOperationException("الكود غير صحيح");
-            
-        if (!PhoneVerificationCodeExpiry.HasValue || PhoneVerificationCodeExpiry < DateTime.UtcNow)
-            throw new InvalidOperationException("انتهت صلاحية الكود");
-            
-        IsPhoneVerified = true;
-        PhoneVerificationCode = null;
-        PhoneVerificationCodeExpiry = null;
-    }
-
-    public void EnableTwoFactor(string secret)
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن تفعيل التحقق بخطوتين");
-            
-        TwoFactorSecret = secret;
-        IsTwoFactorEnabled = true;
-        SecurityStamp = Random.Shared.Next();
-    }
-
-    public void DisableTwoFactor()
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن إلغاء التحقق بخطوتين");
-            
-        TwoFactorSecret = null;
-        IsTwoFactorEnabled = false;
-        SecurityStamp = Random.Shared.Next();
+        
+        if (Status == UserStatus.Pending)
+        {
+            Status = UserStatus.Active;
+        }
     }
 
     public void SetRefreshToken(string token, DateTime expiry)
@@ -271,46 +142,12 @@ public class User : AuditableEntity
         RefreshTokenExpiry = null;
     }
 
-    public void InvalidateAllRefreshTokens()
-    {
-        RefreshToken = null;
-        RefreshTokenExpiry = null;
-        SecurityStamp = Random.Shared.Next();
-    }
-
-    public void SetResetToken(string token, DateTime expiry)
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException("لا يمكن تعيين رمز إعادة التعيين");
-            
-        ResetToken = token;
-        ResetTokenExpiry = expiry;
-    }
-
-    public bool ValidateResetToken(string token)
-    {
-        if (string.IsNullOrEmpty(ResetToken))
-            return false;
-            
-        if (ResetTokenExpiry.HasValue && ResetTokenExpiry < DateTime.UtcNow)
-            return false;
-            
-        return ResetToken == token;
-    }
-
-    public void ClearResetToken()
-    {
-        ResetToken = null;
-        ResetTokenExpiry = null;
-    }
-
     public void Suspend()
     {
         if (IsDeleted)
             throw new InvalidOperationException("لا يمكن إيقاف مستخدم محذوف");
             
         Status = UserStatus.Suspended;
-        SecurityStamp = Random.Shared.Next();
     }
 
     public void Ban()
@@ -319,15 +156,16 @@ public class User : AuditableEntity
             throw new InvalidOperationException("لا يمكن حظر مستخدم محذوف");
             
         Status = UserStatus.Banned;
-        InvalidateAllRefreshTokens();
-        SecurityStamp = Random.Shared.Next();
+        InvalidateRefreshToken();
     }
 
     public void Deactivate(Guid performedBy)
     {
         Status = UserStatus.Deactivated;
-        InvalidateAllRefreshTokens();
-        MarkAsDeleted(performedBy);
+        InvalidateRefreshToken();
+        IsDeleted = true;
+        DeletedAt = DateTime.UtcNow;
+        DeletedBy = performedBy;
     }
 
     public void Reactivate()
@@ -336,13 +174,26 @@ public class User : AuditableEntity
             throw new InvalidOperationException("لا يمكن إعادة تفعيل");
             
         Status = UserStatus.Active;
-        UndoDelete();
-        SecurityStamp = Random.Shared.Next();
+        IsDeleted = false;
+        DeletedAt = null;
+        DeletedBy = null;
     }
 
     public void SetProfileImage(string imageUrl)
     {
         ProfileImageUrl = imageUrl;
+    }
+
+public bool HasRole(string roleName)
+    {
+        return UserRoles.Any(ur => ur.RoleId != Guid.Empty);
+    }
+
+    public void EnsureVerifiedFor(string action)
+    {
+        if (!IsIdentityVerified)
+            throw new InvalidOperationException(
+                $"يجب توثيق هويتك قبل {action}");
     }
 
     protected void RaiseDomainEvent(IDomainEvent domainEvent)

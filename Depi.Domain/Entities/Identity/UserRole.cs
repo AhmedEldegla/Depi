@@ -1,23 +1,25 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace DEPI.Domain.Entities.Identity;
 
-using DEPI.Domain.Common.Base;
-
-public class UserRole : AuditableEntity
+public class UserRole : IdentityUserRole<Guid>
 {
-    public Guid UserId { get; private set; }
-    public Guid RoleId { get; private set; }
+    public string? AssignedBy { get; private set; }
+    public DateTime AssignedAt { get; private set; }
 
     public virtual User? User { get; private set; }
     public virtual Role? Role { get; private set; }
 
-    private UserRole() { }
+    public UserRole() : base() { }
 
-    public static UserRole Create(Guid userId, Guid roleId)
+    public static UserRole Create(Guid userId, Guid roleId, string? assignedBy = null)
     {
         return new UserRole
         {
             UserId = userId,
-            RoleId = roleId
+            RoleId = roleId,
+            AssignedBy = assignedBy,
+            AssignedAt = DateTime.UtcNow
         };
     }
 }

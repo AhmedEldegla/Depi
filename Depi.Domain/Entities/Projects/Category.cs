@@ -11,9 +11,9 @@ public class Category : AuditableEntity
     public bool IsActive { get; private set; } = true;
     public int SortOrder { get; private set; }
 
-    public virtual Category? ParentCategory { get; private set; }
-    public virtual ICollection<Category> SubCategories { get; private set; } = new List<Category>();
-    public virtual ICollection<Project> Projects { get; private set; } = new List<Project>();
+    public Category? ParentCategory { get; private set; }
+    public ICollection<Category> SubCategories { get; private set; } = new List<Category>();
+    public ICollection<Project> Projects { get; private set; } = new List<Project>();
 
     private Category() { }
 

@@ -6,12 +6,6 @@ using DEPI.Domain.Entities.Identity;
 using DEPI.Domain.Entities.Proposals;
 using DEPI.Domain.Enums;
 
-public enum ExperienceLevel
-{
-    Beginner = 1,
-    Intermediate = 2,
-    Expert = 3
-}
 
 public class Project : AuditableEntity
 {

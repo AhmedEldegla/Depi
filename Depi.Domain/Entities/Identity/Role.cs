@@ -1,37 +1,54 @@
 namespace DEPI.Domain.Entities.Identity;
 
-using DEPI.Domain.Common.Base;
+using DEPI.Domain.Common.Messages;
+using Microsoft.AspNetCore.Identity;
 
-public class Role : AuditableEntity
+public class Role : IdentityRole<Guid>
 {
-    public string Name { get; private set; } = string.Empty;
-    public string Description { get; private set; } = string.Empty;
+    public string? Description { get; private set; }
     public bool IsDefault { get; private set; }
+    
+    public Guid CreatedBy { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public Guid? UpdatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public bool IsDeleted { get; private set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public virtual ICollection<UserRole> UserRoles { get; private set; } = new List<UserRole>();
     public virtual ICollection<RolePermission> RolePermissions { get; private set; } = new List<RolePermission>();
 
-    private Role() { }
+    private Role() : base() { }
 
-    public static Role Create(string name, string description = "", bool isDefault = false)
+    public static Role Create(string name, string? description = null, bool isDefault = false)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("اسم الدور مطلوب", nameof(name));
+            throw new ArgumentException(Strings.Validation.RoleNameRequired, nameof(name));
 
         return new Role
         {
             Name = name.Trim(),
-            Description = description?.Trim() ?? string.Empty,
-            IsDefault = isDefault
+            NormalizedName = name.ToUpperInvariant().Trim(),
+            Description = description?.Trim(),
+            IsDefault = isDefault,
+            CreatedAt = DateTime.UtcNow
         };
     }
 
-    public void Update(string name, string description)
+    public void Update(string name, string? description)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("اسم الدور مطلوب", nameof(name));
+            throw new ArgumentException(Strings.Validation.RoleNameRequired, nameof(name));
 
         Name = name.Trim();
-        Description = description?.Trim() ?? string.Empty;
+        NormalizedName = name.ToUpperInvariant().Trim();
+        Description = description?.Trim();
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void SetAsDefault()
+    {
+        IsDefault = true;
     }
 }
