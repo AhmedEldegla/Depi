@@ -1,7 +1,7 @@
 using DEPI.Domain.Entities.Identity;
 using DEPI.Domain.Interfaces;
 
-namespace DEPI.Application.Interfaces;
+namespace Depi.Application.Repositories.Identity;
 
 public interface IUserRepository : IRepository<User>
 {

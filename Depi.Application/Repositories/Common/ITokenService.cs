@@ -1,4 +1,4 @@
-namespace DEPI.Application.Interfaces;
+namespace Depi.Application.Repositories.Common;
 
 public interface ITokenService
 {
