@@ -1,4 +1,6 @@
+using DEPI.Infrastructure.DependencyInjection;
 namespace Depi.API
+
 {
     public class Program
     {
@@ -6,18 +8,41 @@ namespace Depi.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+
             // Add services to the container.
 
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new Exception("DefaultConnection is missing in appsettings.json");
+            }
+
+            builder.Services.AddInfrastructure(connectionString);
+
+
             builder.Services.AddControllers();
+
+
+            // Swagger
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
+            
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
             app.UseHttpsRedirection();
 
+            
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 
