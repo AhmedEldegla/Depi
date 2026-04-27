@@ -1,3 +1,4 @@
+using DEPI.Application.UseCases.Projects.CreateProject;
 using DEPI.Infrastructure.DependencyInjection;
 namespace Depi.API
 
@@ -7,7 +8,9 @@ namespace Depi.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+           
+            builder.Services.AddMediatR(cfg =>
+               cfg.RegisterServicesFromAssembly(typeof(CreateProjectCommand).Assembly));      
 
             // Add services to the container.
 
