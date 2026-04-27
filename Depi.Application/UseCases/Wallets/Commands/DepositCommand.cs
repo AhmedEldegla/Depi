@@ -1,0 +1,12 @@
+﻿using Depi.Application.DTOs.Wallets;
+using DEPI.Application.Common;
+using MediatR;
+
+
+namespace Depi.Application.UseCases.Wallets.Commands
+{
+    public record DepositCommand(
+        Guid UserId,
+       DepositRequestDto Request
+    ) : IRequest<Result<TransactionResponseDto>>;
+}
