@@ -1,16 +1,14 @@
-using AutoMapper;
+// Projects/CreateProject/CreateProjectCommandHandler.cs (includes Validator +Handler +Extensions)
+using Depi.Application.Repositories.Identity;
 using DEPI.Application.Common;
 using DEPI.Application.DTOs.Projects;
-using DEPI.Application.Interfaces;
-using DEPI.Application.Settings;
+using DEPI.Application.Repositories.Projects;
+using DEPI.Domain.Entities.Identity;
 using DEPI.Domain.Entities.Projects;
 using DEPI.Domain.Enums;
 using FluentValidation;
 using MediatR;
-using Microsoft.Extensions.Options;
-
 namespace DEPI.Application.UseCases.Projects.CreateProject;
-
 public class CreateProjectCommandValidator : AbstractValidator<CreateProjectCommand>
 {
     public CreateProjectCommandValidator()
@@ -25,24 +23,15 @@ public class CreateProjectCommandValidator : AbstractValidator<CreateProjectComm
         RuleFor(x => x.Deadline).GreaterThan(DateTime.UtcNow).WithMessage("الموعد النهائي يجب أن يكون في المستقبل");
     }
 }
-
 public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand, Result<ProjectResponse>>
 {
     private readonly IProjectRepository _projectRepository;
     private readonly IUserRepository _userRepository;
-    private readonly IMapper _mapper;
-    private readonly FeatureFlags _features;
 
-    public CreateProjectCommandHandler(
-        IProjectRepository projectRepository,
-        IUserRepository userRepository,
-        IMapper mapper,
-        IOptions<FeatureFlags> features)
-    {
+    public CreateProjectCommandHandler(IProjectRepository projectRepository, IUserRepository userRepository)
+    { 
         _projectRepository = projectRepository;
         _userRepository = userRepository;
-        _mapper = mapper;
-        _features = features.Value;
     }
 
     public async Task<Result<ProjectResponse>> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
@@ -50,18 +39,29 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         try
         {
             var owner = await _userRepository.GetByIdAsync(request.OwnerId) ?? throw new KeyNotFoundException(Errors.NotFound("User"));
-            if (_features.RequireIdentityVerification) owner.EnsureVerifiedFor("نشر المشروع");
-
+            owner.EnsureVerifiedFor("نشر المشروع");
+            
             var project = Project.Create(request.OwnerId, request.Title, request.Description, request.Type, request.BudgetMin, request.BudgetMax, request.FixedPrice, request.RequiredLevel, request.Deadline);
             project.SetCreatedBy(request.OwnerId);
-
+            
+            
             if (!string.IsNullOrWhiteSpace(request.Skills))
                 project.SetSkills(request.Skills);
 
+
             await _projectRepository.AddAsync(project);
-            return Result<ProjectResponse>.Success(_mapper.Map<ProjectResponse>(project));
+            return Result<ProjectResponse>.Success(project.ToResponse());
         }
-        catch (ArgumentException ex) { return Result<ProjectResponse>.Failure(ex.Message, ErrorCode.ValidationError); }
-        catch (Exception) { return Result<ProjectResponse>.Failure(Errors.Internal(), ErrorCode.InternalError); }
+        catch (ArgumentException ex)
+        { 
+            return Result<ProjectResponse>.Failure(ex.Message, ErrorCode.ValidationError);
+        }
+        catch (Exception ex)
+        {
+            return Result<ProjectResponse>.Failure(ex.Message, ErrorCode.InternalError);
+        }
     }
+}
+public static class ProjectExtensions {
+    public static ProjectResponse ToResponse(this Project project) => new ProjectResponse(Id: project.Id, OwnerId: project.OwnerId, OwnerName: project.Owner?.FullName ?? "Unknown", CategoryId: project.CategoryId, CategoryName: project.Category?.Name, Title: project.Title, Description: project.Description, Type: project.Type, Status: project.Status, BudgetMin: project.BudgetMin, BudgetMax: project.BudgetMax, FixedPrice: project.FixedPrice, EstimatedHours: project.RequiredLevel == ExperienceLevel.Beginner ? 10 : project.RequiredLevel == ExperienceLevel.Intermediate ? 40 : 80, RequiredLevel: project.RequiredLevel, Deadline: project.Deadline, Skills: project.Skills, IsFeatured: project.IsFeatured, IsUrgent: project.IsUrgent, IsNda: project.IsNda, ViewsCount: project.ViewsCount, ProposalsCount: project.ProposalsCount, AssignedFreelancerId: project.AssignedFreelancerId, AssignedFreelancerName: project.AssignedFreelancer?.FullName, StartedAt: project.StartedAt, CompletedAt: project.CompletedAt, FinalPrice: project.FinalPrice, CreatedAt: project.CreatedAt, UpdatedAt: project.UpdatedAt);
 }
