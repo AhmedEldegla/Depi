@@ -19,6 +19,7 @@ public class ProjectRepository : Repository<Project>, IProjectRepository
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
+
     public async Task<List<Project>> GetAllProjectsAsync(CancellationToken cancellationToken = default)
     {
         return await _dbSet

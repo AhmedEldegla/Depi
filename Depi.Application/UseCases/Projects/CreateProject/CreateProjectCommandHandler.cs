@@ -56,9 +56,9 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         { 
             return Result<ProjectResponse>.Failure(ex.Message, ErrorCode.ValidationError);
         }
-        catch (Exception) 
-        { 
-            return Result<ProjectResponse>.Failure(Errors.Internal(), ErrorCode.InternalError);
+        catch (Exception ex)
+        {
+            return Result<ProjectResponse>.Failure(ex.Message, ErrorCode.InternalError);
         }
     }
 }

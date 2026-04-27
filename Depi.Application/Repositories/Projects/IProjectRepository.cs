@@ -13,5 +13,6 @@ public interface IProjectRepository : IRepository<Project>
     Task<List<Project>> GetByCategoryAsync(Guid categoryId, CancellationToken cancellationToken = default);
     Task IncrementViewsAsync(Guid projectId, CancellationToken cancellationToken = default);
     Task IncrementProposalsAsync(Guid projectId, CancellationToken cancellationToken = default);
+
 }
 
