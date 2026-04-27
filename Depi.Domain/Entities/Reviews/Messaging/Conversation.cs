@@ -7,6 +7,9 @@ using DEPI.Domain.Entities.Projects;
 
 public class Conversation : AuditableEntity
 {
+    public DateTime? LastMessageDate;
+    public string? LastMessage;
+
     public string Title { get; private set; } = string.Empty;
     public Guid? ProjectId { get; private set; }
     public Guid? ContractId { get; private set; }
@@ -43,6 +46,11 @@ public class Conversation : AuditableEntity
     public void UpdateLastMessage()
     {
         LastMessageAt = DateTime.UtcNow;
+    }
+
+    public static Conversation Create(string? title, bool isGroup)
+    {
+        throw new NotImplementedException();
     }
 }
 

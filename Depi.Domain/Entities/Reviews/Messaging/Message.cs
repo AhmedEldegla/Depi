@@ -5,6 +5,8 @@ using DEPI.Domain.Entities.Identity;
 
 public class Message : AuditableEntity
 {
+    public DateTime SentAt;
+
     public Guid ConversationId { get; private set; }
     public Guid SenderId { get; private set; }
     public string Content { get; private set; } = string.Empty;
