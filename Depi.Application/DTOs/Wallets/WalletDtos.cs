@@ -1,7 +1,7 @@
 ﻿
 namespace Depi.Application.DTOs.Wallets
 {
-    public record CreateWalletRequest(
+    public record CreateWalletRequestDto(
 
         Guid UserId,
         string CurrencyCode = "USD"
