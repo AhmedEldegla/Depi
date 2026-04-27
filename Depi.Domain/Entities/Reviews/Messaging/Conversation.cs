@@ -7,6 +7,9 @@ using DEPI.Domain.Entities.Projects;
 
 public class Conversation : AuditableEntity
 {
+    public DateTime? LastMessageDate;
+    public string? LastMessage;
+
     public string Title { get; private set; } = string.Empty;
     public Guid? ProjectId { get; private set; }
     public Guid? ContractId { get; private set; }
