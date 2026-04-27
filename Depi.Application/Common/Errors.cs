@@ -58,4 +58,9 @@ public static class Errors
 
     public static string InvalidCredentials()
         => "Invalid email or password";
+
+    internal static string Unauthorized(string v)
+    {
+        throw new NotImplementedException();
+    }
 }

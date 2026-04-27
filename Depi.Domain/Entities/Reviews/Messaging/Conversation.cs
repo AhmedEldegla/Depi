@@ -44,6 +44,11 @@ public class Conversation : AuditableEntity
     {
         LastMessageAt = DateTime.UtcNow;
     }
+
+    public static Conversation Create(string? title, bool isGroup)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public class ConversationParticipant : AuditableEntity
