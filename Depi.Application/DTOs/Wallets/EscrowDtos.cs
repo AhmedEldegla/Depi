@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace Depi.Application.DTOs.Wallets
 {
-   public record EscrowRequest(
+   public record CreateEscrowRequestDto(
        Guid ContractId,
        Guid ClientWalletId,
        Guid FreelancerWalletId,
@@ -15,7 +11,7 @@ namespace Depi.Application.DTOs.Wallets
 
    );
 
-    public record EscrowResponse(
+    public record EscrowResponseDto(
        Guid Id,
        Guid ContractId,
        Guid ClientWalletId,
@@ -29,8 +25,8 @@ namespace Depi.Application.DTOs.Wallets
        DateTime? ReleasedAt,
        DateTime? RefundedAt
     );
-    public record EscrowListResponse(
-       List<EscrowResponse> Escrows,
+    public record EscrowListResponseDto(
+       List<EscrowResponseDto> Escrows,
        int TotalCount,
        int Page,
        int PageSize,

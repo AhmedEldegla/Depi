@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Depi.Application.DTOs.Wallets
 {
     public record CreateWalletRequest(
@@ -12,19 +7,20 @@ namespace Depi.Application.DTOs.Wallets
         string CurrencyCode = "USD"
     );
 
-    public record WalletRespons(
+    public record WalletResponseDto(
         Guid Id ,
         Guid UserId,
         decimal Balance,
         decimal PendingBalance,
         decimal TotalEarnings,
         decimal TotalSpent,
+        decimal AvailableBalance,
         string Currency,
         bool IsActive
     );
 
-    public record WalletListResponse(
-        List<WalletRespons> Wallets,
+    public record WalletListResponseDto(
+        List<WalletResponseDto> Wallets,
          int TotalCount,
          int Page,
          int PageSize,

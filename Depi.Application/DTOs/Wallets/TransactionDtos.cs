@@ -1,36 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Depi.Application.DTOs.Wallets
 {
 
     //Request
-    public record WithdrawRequest(
-        Guid walletId,
-        decimal amount,
-        string? description = null
+    public record WithdrawRequestDto(
+        Guid WalletId,
+        decimal Amount,
+        string? Description = null
         );
 
 
-    public record DepositRequest(
-        Guid walletId,
-        decimal amount,
+    public record DepositRequestDto(
+        Guid WalletId,
+        decimal Amount,
         string? PaymentMethod = null,
         string? Description = null
         );
 
-    public record TransferRequest(
-        Guid fromWalletId,
-        Guid toWalletId,
-        decimal amount,
-        string? description = null
+    public record TransferRequestDto(
+        Guid FromWalletId,
+        Guid ToWalletId,
+        decimal Amount,
+        string? Description = null
         );
 
     //Response
-    public record TransactionResponse(
+    public record TransactionResponseDto(
         Guid Id,
         Guid WalletId,
         Guid? FromWalletId,
@@ -50,8 +45,8 @@ namespace Depi.Application.DTOs.Wallets
         DateTime CreatedAt
     );
 
-    public record TransactionListResponse(
-        List<TransactionResponse> Transactions,
+    public record TransactionListResponseDto(
+        List<TransactionResponseDto> Transactions,
         int TotalCount,
         int Page,
         int PageSize,
