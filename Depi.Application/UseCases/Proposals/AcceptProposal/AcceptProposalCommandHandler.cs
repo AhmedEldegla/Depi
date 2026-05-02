@@ -1,16 +1,17 @@
 // Proposals/AcceptProposal/AcceptProposalCommandHandler.cs
+using AutoMapper;
 using DEPI.Application.Common;
 using DEPI.Application.DTOs.Proposals;
+using DEPI.Application.Interfaces;
 using MediatR;
 using DEPI.Domain.Entities.Proposals;
-using DEPI.Application.Repositories.Proposals;
-using DEPI.Application.Repositories.Projects;
 namespace DEPI.Application.UseCases.Proposals.AcceptProposal;
 public class AcceptProposalCommandHandler : IRequestHandler<AcceptProposalCommand, ProposalResponse>
 {
     private readonly IProposalRepository _proposalRepository;
     private readonly IProjectRepository _projectRepository;
-    public AcceptProposalCommandHandler(IProposalRepository proposalRepository, IProjectRepository projectRepository) { _proposalRepository = proposalRepository; _projectRepository = projectRepository; }
+    private readonly IMapper _mapper;
+    public AcceptProposalCommandHandler(IProposalRepository proposalRepository, IProjectRepository projectRepository, IMapper mapper) { _proposalRepository = proposalRepository; _projectRepository = projectRepository; _mapper = mapper; }
     public async Task<ProposalResponse> Handle(AcceptProposalCommand request, CancellationToken cancellationToken)
     {
         var proposal = await _proposalRepository.GetByIdAsync(request.ProposalId) ?? throw new KeyNotFoundException(Errors.NotFound("Proposal"));
@@ -20,7 +21,6 @@ public class AcceptProposalCommandHandler : IRequestHandler<AcceptProposalComman
         await _proposalRepository.UpdateAsync(proposal);
         project.AssignFreelancer(proposal.FreelancerId, proposal.ProposedAmount);
         await _projectRepository.UpdateAsync(project);
-        return MapToResponse(proposal);
+        return _mapper.Map<ProposalResponse>(proposal);
     }
-    private static ProposalResponse MapToResponse(Proposal proposal) => new ProposalResponse(Id: proposal.Id, ProjectId: proposal.ProjectId, ProjectTitle: proposal.Project?.Title ?? "Unknown", FreelancerId: proposal.FreelancerId, FreelancerName: proposal.Freelancer?.FullName ?? "Unknown", ProposedAmount: proposal.ProposedAmount, EstimatedDays: proposal.EstimatedDays, CoverLetter: proposal.CoverLetter, Status: proposal.Status, RejectionReason: proposal.RejectionReason, AcceptedAt: proposal.AcceptedAt, CreatedAt: proposal.CreatedAt, UpdatedAt: proposal.UpdatedAt);
 }

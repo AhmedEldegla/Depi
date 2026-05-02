@@ -1,7 +1,8 @@
+using AutoMapper;
 using DEPI.Application.Common;
 using DEPI.Application.DTOs.Projects;
-using DEPI.Application.Repositories.Projects;
-using DEPI.Application.UseCases.Projects.CreateProject;
+using DEPI.Application.Interfaces;
+using DEPI.Domain.Entities.Projects;
 using DEPI.Domain.Enums;
 using MediatR;
 
@@ -9,28 +10,25 @@ namespace DEPI.Application.UseCases.Projects.Queries;
 
 public record GetProjectQuery(Guid Id) : IRequest<Result<ProjectResponse>>;
 
-public class GetProjectQueryHandler
-    : IRequestHandler<GetProjectQuery, Result<ProjectResponse>>
+public class GetProjectQueryHandler : IRequestHandler<GetProjectQuery, Result<ProjectResponse>>
 {
     private readonly IProjectRepository _projectRepository;
+    private readonly IMapper _mapper;
 
-    public GetProjectQueryHandler(IProjectRepository projectRepository)
+    public GetProjectQueryHandler(IProjectRepository projectRepository, IMapper mapper)
     {
         _projectRepository = projectRepository;
+        _mapper = mapper;
     }
 
-    public async Task<Result<ProjectResponse>> Handle(
-        GetProjectQuery request,
-        CancellationToken cancellationToken)
+    public async Task<Result<ProjectResponse>> Handle(GetProjectQuery request, CancellationToken cancellationToken)
     {
         var project = await _projectRepository.GetByIdAsync(request.Id);
 
         if (project == null)
-            return Result<ProjectResponse>.Failure(
-                Errors.NotFound("المشروع"),
-                ErrorCode.ProjectNotFound);
+            return Result<ProjectResponse>.Failure(Errors.NotFound("المشروع"), ErrorCode.ProjectNotFound);
 
-        return Result<ProjectResponse>.Success(project.ToResponse()); // محدش يركز اوي هنا دا Pattern ثابت = مثلا ("Get Query Success")
+        return Result<ProjectResponse>.Success(_mapper.Map<ProjectResponse>(project));
     }
 }
 
@@ -47,19 +45,18 @@ public record GetProjectsQuery(
     int PageSize = 20
 ) : IRequest<Result<ProjectListResponse>>;
 
-public class GetProjectsQueryHandler
-    : IRequestHandler<GetProjectsQuery, Result<ProjectListResponse>>
+public class GetProjectsQueryHandler : IRequestHandler<GetProjectsQuery, Result<ProjectListResponse>>
 {
     private readonly IProjectRepository _projectRepository;
+    private readonly IMapper _mapper;
 
-    public GetProjectsQueryHandler(IProjectRepository projectRepository)
+    public GetProjectsQueryHandler(IProjectRepository projectRepository, IMapper mapper)
     {
         _projectRepository = projectRepository;
+        _mapper = mapper;
     }
 
-    public async Task<Result<ProjectListResponse>> Handle(
-        GetProjectsQuery request,
-        CancellationToken cancellationToken)
+    public async Task<Result<ProjectListResponse>> Handle(GetProjectsQuery request, CancellationToken cancellationToken)
     {
         var projects = await _projectRepository.GetAllProjectsAsync(cancellationToken);
         var filteredProjects = projects.AsEnumerable();
@@ -89,11 +86,15 @@ public class GetProjectsQueryHandler
 
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
 
-        return Result<ProjectListResponse>.Success(new ProjectListResponse(
-            Projects: pagedProjects.Select(p => p.ToResponse()).ToList(),
-            TotalCount: totalCount,
-            Page: request.Page,
-            PageSize: request.PageSize,
-            TotalPages: totalPages));
+        var projectResponses = pagedProjects.Select(p => _mapper.Map<ProjectResponse>(p)).ToList();
+
+        return Result<ProjectListResponse>.Success(new ProjectListResponse
+        {
+            Projects = projectResponses,
+            TotalCount = totalCount,
+            Page = request.Page,
+            PageSize = request.PageSize,
+            TotalPages = totalPages
+        });
     }
 }

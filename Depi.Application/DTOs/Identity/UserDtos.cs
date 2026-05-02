@@ -55,43 +55,48 @@ public record ResetPasswordRequest(
     string NewPassword
 );
 
-public record UserResponse(
-    Guid Id,
-    string Email,
-    string FirstName,
-    string LastName,
-    string FullName,
-    UserType UserType,
-    UserStatus Status,
-    Gender Gender,
-    DateTime? DateOfBirth,
-    string? PhoneNumber,
-    string? ProfileImageUrl,
-    bool IsEmailVerified,
-    bool IsPhoneVerified,
-    bool IsIdentityVerified,
-    bool IsTwoFactorEnabled,
-    DateTime? LastLoginAt,
-    DateTime CreatedAt
-);
+public class UserResponse
+{
+    public Guid Id { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
+    public UserType UserType { get; set; }
+    public UserStatus Status { get; set; }
+    public Gender Gender { get; set; }
+    public DateTime? DateOfBirth { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? ProfileImageUrl { get; set; }
+    public bool IsEmailVerified { get; set; }
+    public bool IsPhoneVerified { get; set; }
+    public bool IsIdentityVerified { get; set; }
+    public bool IsTwoFactorEnabled { get; set; }
+    public DateTime? LastLoginAt { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public List<string> Roles { get; set; } = new();
+}
 
-public record AuthResponse(
-    string AccessToken,
-    string RefreshToken,
-    DateTime ExpiresAt,
-    UserResponse User
-);
+public class AuthResponse
+{
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+    public UserResponse User { get; set; } = new();
+}
 
-public record LoginResponse(
-    string AccessToken,
-    string RefreshToken,
-    DateTime AccessTokenExpiry,
-    DateTime RefreshTokenExpiry,
-    UserResponse User
-);
+public class LoginResponse
+{
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
+    public DateTime AccessTokenExpiry { get; set; }
+    public DateTime RefreshTokenExpiry { get; set; }
+    public UserResponse User { get; set; } = new();
+}
 
-public record TokenResponse(
-    string AccessToken,
-    string RefreshToken,
-    DateTime ExpiresAt
-);
+public class TokenResponse
+{
+    public string AccessToken { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
+    public DateTime ExpiresAt { get; set; }
+}

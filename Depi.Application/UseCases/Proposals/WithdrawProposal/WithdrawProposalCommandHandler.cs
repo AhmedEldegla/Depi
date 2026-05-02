@@ -1,5 +1,6 @@
+// Proposals/WithdrawProposal/WithdrawProposalCommandHandler.cs
 using DEPI.Application.Common;
-using DEPI.Application.Repositories.Proposals;
+using DEPI.Application.Interfaces;
 using MediatR;
 namespace DEPI.Application.UseCases.Proposals.WithdrawProposal;
 public class WithdrawProposalCommandHandler : IRequestHandler<WithdrawProposalCommand, Unit>

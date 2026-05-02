@@ -42,41 +42,43 @@ public record ProjectFilterRequest(
     int PageSize = 20
 );
 
-public record ProjectResponse(
-    Guid Id,
-    Guid OwnerId,
-    string OwnerName,
-    Guid? CategoryId,
-    string? CategoryName,
-    string Title,
-    string Description,
-    ProjectType Type,
-    ProjectStatus Status,
-    decimal? BudgetMin,
-    decimal? BudgetMax,
-    decimal? FixedPrice,
-    int? EstimatedHours,
-    ExperienceLevel RequiredLevel,
-    DateTime? Deadline,
-    string? Skills,
-    bool IsFeatured,
-    bool IsUrgent,
-    bool IsNda,
-    int ViewsCount,
-    int ProposalsCount,
-    Guid? AssignedFreelancerId,
-    string? AssignedFreelancerName,
-    DateTime? StartedAt,
-    DateTime? CompletedAt,
-    decimal? FinalPrice,
-    DateTime CreatedAt,
-    DateTime? UpdatedAt
-);
+public class ProjectResponse
+{
+    public Guid Id { get; set; }
+    public Guid OwnerId { get; set; }
+    public string OwnerName { get; set; } = string.Empty;
+    public Guid? CategoryId { get; set; }
+    public string? CategoryName { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public ProjectType Type { get; set; }
+    public ProjectStatus Status { get; set; }
+    public decimal? BudgetMin { get; set; }
+    public decimal? BudgetMax { get; set; }
+    public decimal? FixedPrice { get; set; }
+    public int? EstimatedHours { get; set; }
+    public ExperienceLevel RequiredLevel { get; set; }
+    public DateTime? Deadline { get; set; }
+    public string? Skills { get; set; }
+    public bool IsFeatured { get; set; }
+    public bool IsUrgent { get; set; }
+    public bool IsNda { get; set; }
+    public int ViewsCount { get; set; }
+    public int ProposalsCount { get; set; }
+    public Guid? AssignedFreelancerId { get; set; }
+    public string? AssignedFreelancerName { get; set; }
+    public DateTime? StartedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
+    public decimal? FinalPrice { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+}
 
-public record ProjectListResponse(
-    List<ProjectResponse> Projects,
-    int TotalCount,
-    int Page,
-    int PageSize,
-    int TotalPages
-);
+public class ProjectListResponse
+{
+    public List<ProjectResponse> Projects { get; set; } = new();
+    public int TotalCount { get; set; }
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+    public int TotalPages { get; set; }
+}
