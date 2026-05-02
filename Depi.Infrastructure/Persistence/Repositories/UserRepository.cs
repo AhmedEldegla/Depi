@@ -1,4 +1,4 @@
-using Depi.Application.Repositories.Identity;
+using DEPI.Application.Interfaces;
 using DEPI.Domain.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 

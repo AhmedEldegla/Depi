@@ -1,4 +1,4 @@
-using Depi.Application.Repositories.Common;
+using DEPI.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,14 +13,17 @@ public class TokenService : ITokenService
     private readonly string _jwtSecret;
     private readonly string _jwtIssuer;
     private readonly string _jwtAudience;
-    private readonly int _accessTokenExpirationMinutes = 15;
-    private readonly int _refreshTokenExpirationDays = 7;
+    private readonly int _accessTokenExpirationMinutes;
+    private readonly int _refreshTokenExpirationDays;
 
     public TokenService(IConfiguration configuration)
     {
-        _jwtSecret = configuration["Jwt:SecretKey"] ?? "DEPI_SmartFreelance_Secret_Key_For_Development_2026_This_Should_Be_In_Production_Settings";
+        _jwtSecret = configuration["Jwt:SecretKey"]
+            ?? throw new InvalidOperationException("JWT SecretKey is not configured. Set 'Jwt:SecretKey' in appsettings or environment variable.");
         _jwtIssuer = configuration["Jwt:Issuer"] ?? "DEPI.SmartFreelance";
         _jwtAudience = configuration["Jwt:Audience"] ?? "DEPI.SmartFreelance.API";
+        _accessTokenExpirationMinutes = int.TryParse(configuration["Jwt:AccessTokenExpirationMinutes"], out var minutes) ? minutes : 15;
+        _refreshTokenExpirationDays = int.TryParse(configuration["Jwt:RefreshTokenExpirationDays"], out var days) ? days : 7;
     }
 
     public string GenerateAccessToken(Guid userId, string email, string userType)
@@ -52,8 +55,7 @@ public class TokenService : ITokenService
         var randomNumber = new byte[64];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
-        var token = Convert.ToBase64String(randomNumber);
-        return token;
+        return Convert.ToBase64String(randomNumber);
     }
 
     public (Guid UserId, string Email, string UserType)? ValidateAccessToken(string token)
@@ -72,7 +74,7 @@ public class TokenService : ITokenService
                 ValidateAudience = true,
                 ValidAudience = _jwtAudience,
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.FromMinutes(5)
             };
 
             var principal = handler.ValidateToken(token, validationParameters, out _);
@@ -98,7 +100,38 @@ public class TokenService : ITokenService
 
     public Guid? ValidateRefreshToken(string token)
     {
-        return null;
+        if (string.IsNullOrWhiteSpace(token))
+            return null;
+
+        try
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecret));
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = true,
+                ValidIssuer = _jwtIssuer,
+                ValidateAudience = true,
+                ValidAudience = _jwtAudience,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromMinutes(5)
+            };
+
+            var handler = new JwtSecurityTokenHandler();
+            var principal = handler.ValidateToken(token, validationParameters, out _);
+
+            var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                return null;
+
+            return userId;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public DateTime? GetRefreshTokenExpiry(string token)

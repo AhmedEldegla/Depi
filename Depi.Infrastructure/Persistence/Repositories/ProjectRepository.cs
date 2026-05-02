@@ -1,4 +1,4 @@
-using DEPI.Application.Repositories.Projects;
+using DEPI.Application.Interfaces;
 using DEPI.Domain.Entities.Projects;
 using DEPI.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +18,6 @@ public class ProjectRepository : Repository<Project>, IProjectRepository
             .Include(p => p.Owner)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
-
 
     public async Task<List<Project>> GetAllProjectsAsync(CancellationToken cancellationToken = default)
     {
@@ -115,10 +114,10 @@ public class ProjectRepository : Repository<Project>, IProjectRepository
     public async Task<int> GetCountByStatusAsync(ProjectStatus? status = null, CancellationToken cancellationToken = default)
     {
         var query = _dbSet.AsQueryable();
-
+        
         if (status.HasValue)
             query = query.Where(p => p.Status == status.Value);
-
+        
         return await query.CountAsync(cancellationToken);
     }
 }

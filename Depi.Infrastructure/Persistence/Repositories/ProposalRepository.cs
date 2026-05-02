@@ -1,4 +1,4 @@
-using DEPI.Application.Repositories.Proposals;
+using DEPI.Application.Interfaces;
 using DEPI.Domain.Entities.Proposals;
 using Microsoft.EntityFrameworkCore;
 
