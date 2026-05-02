@@ -17,7 +17,6 @@ public class CreateConversationHandler : IRequestHandler<CreateConversationComma
 
     public async Task<Result<Guid>> Handle(CreateConversationCommand request, CancellationToken ct)
     {
-        // استخدام المسار الكامل لمنع التضارب مع System.IO
         var conversation = DEPI.Domain.Entities.Messaging.Conversation.Create(request.Title, request.IsGroup);
 
         await _conversationRepository.AddAsync(conversation);

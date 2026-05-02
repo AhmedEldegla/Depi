@@ -1,5 +1,7 @@
-﻿using Depi.Application.Repositories.Messaging;
+﻿using AutoMapper;
+using Depi.Application.Repositories.Messaging;
 using DEPI.Application.Common;
+using DEPI.Application.DTOs.Messaging;
 using MediatR;
 
 namespace DEPI.Application.UseCases.Messaging.Queries;
@@ -10,26 +12,24 @@ public class GetConversationsHandler : IRequestHandler<GetConversationsQuery, Re
 {
     private readonly IConversationRepository _conversationRepository;
     private readonly ICurrentUserService _currentUser;
+    private readonly IMapper _mapper;
 
-    public GetConversationsHandler(IConversationRepository conversationRepository, ICurrentUserService currentUser)
+    public GetConversationsHandler(
+        IConversationRepository conversationRepository,
+        ICurrentUserService currentUser,
+        IMapper mapper)
     {
         _conversationRepository = conversationRepository;
         _currentUser = currentUser;
+        _mapper = mapper;
     }
 
     public async Task<Result<List<ConversationResponse>>> Handle(GetConversationsQuery request, CancellationToken ct)
     {
         var conversations = await _conversationRepository.GetUserConversationsAsync(_currentUser.UserId, ct);
 
-        var response = conversations.Select(c => new ConversationResponse(
-            c.Id,
-            c.Title ?? "محادثة",
-            (DateTime)c.LastMessageAt, // تأكد أن DTO يقبل DateTime? أو استخدم .Value
-            c.IsGroup
-        )).ToList();
+        var response = _mapper.Map<List<ConversationResponse>>(conversations);
 
         return Result<List<ConversationResponse>>.Success(response);
     }
 }
-
-public record ConversationResponse(Guid Id, string Title, DateTime LastMessageAt, bool IsGroup);

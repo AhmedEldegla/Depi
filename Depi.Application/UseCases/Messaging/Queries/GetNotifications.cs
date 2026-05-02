@@ -1,5 +1,7 @@
-﻿using Depi.Application.Repositories.Messaging;
+﻿using AutoMapper;
+using Depi.Application.Repositories.Messaging;
 using DEPI.Application.Common;
+using DEPI.Application.DTOs.Messaging;
 using MediatR;
 
 namespace DEPI.Application.UseCases.Messaging.Queries;
@@ -10,20 +12,24 @@ public class GetNotificationsHandler : IRequestHandler<GetNotificationsQuery, Re
 {
     private readonly INotificationRepository _notificationRepository;
     private readonly ICurrentUserService _currentUser;
+    private readonly IMapper _mapper;
 
-    public GetNotificationsHandler(INotificationRepository notificationRepository, ICurrentUserService currentUser)
+    public GetNotificationsHandler(
+        INotificationRepository notificationRepository,
+        ICurrentUserService currentUser,
+        IMapper mapper)
     {
         _notificationRepository = notificationRepository;
         _currentUser = currentUser;
+        _mapper = mapper;
     }
 
     public async Task<Result<List<NotificationResponse>>> Handle(GetNotificationsQuery request, CancellationToken ct)
     {
         var notes = await _notificationRepository.GetUnreadNotificationsAsync(_currentUser.UserId, ct);
 
-        var response = notes.Select(n => new NotificationResponse(n.Id, n.Message, n.CreatedAt)).ToList();
+        var response = _mapper.Map<List<NotificationResponse>>(notes);
+
         return Result<List<NotificationResponse>>.Success(response);
     }
 }
-
-public record NotificationResponse(Guid Id, string Message, DateTime CreatedAt);

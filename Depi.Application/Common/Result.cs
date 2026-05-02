@@ -22,6 +22,11 @@ public class Result<T>
 
     public static Result<T> Failure(string error, ErrorCode? errorCode = null)
         => new(false, default, error, errorCode);
+
+    public object? ToMessageResponseList()
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public class Result

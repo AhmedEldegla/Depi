@@ -2,7 +2,10 @@
 using DEPI.Application.Common;
 using MediatR;
 
-public record MarkAsReadCommand(Guid ConversationId) : IRequest<Result<bool>>;
+public record MarkAsReadCommand(Guid ConversationId) : IRequest<Result<bool>>
+{
+    public Guid MessageId { get; set; }
+}
 
 public class MarkAsReadHandler : IRequestHandler<MarkAsReadCommand, Result<bool>>
 {
