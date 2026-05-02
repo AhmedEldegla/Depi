@@ -109,7 +109,6 @@
 | Post Jobs | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Apply for Jobs | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Community/Forum | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Enroll in Courses | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Wallet Operations | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Send Messages | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Submit Talent (HeadHunter) | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
@@ -198,13 +197,20 @@ This project is proprietary. All rights reserved.
 ---
 
 ## Team
-Backend
-1-Ahmed Eldegla
-2-Mahmoud Heggy
-3-Hamsa Alaa
-4-Fatma Hassan
-5-Alyaa Yehia
+### Backend Team
 
+| # | Name |
+|---|------|
+| 1 | Ahmed Eldegla |
+| 2 | Mahmoud Heggy |
+| 3 | Hamsa Alaa |
+| 4 | Fatma Hassan |
+| 5 | Alyaa Yehia |
+
+
+### Supervisor
+
+Eng. Ahmed Hassanin
 ---
 
 <p align="center">
