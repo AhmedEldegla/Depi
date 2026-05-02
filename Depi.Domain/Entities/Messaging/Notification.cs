@@ -5,8 +5,6 @@ using DEPI.Domain.Entities.Identity;
 
 public class Notification : AuditableEntity
 {
-    public string Content;
-
     public Guid UserId { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public string Message { get; private set; } = string.Empty;

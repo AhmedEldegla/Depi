@@ -6,6 +6,12 @@ using DEPI.Domain.Entities.Identity;
 using DEPI.Domain.Entities.Proposals;
 using DEPI.Domain.Enums;
 
+public enum ExperienceLevel
+{
+    Beginner = 1,
+    Intermediate = 2,
+    Expert = 3
+}
 
 public class Project : AuditableEntity
 {
@@ -33,6 +39,7 @@ public class Project : AuditableEntity
     public DateTime? StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
     public decimal? FinalPrice { get; private set; }
+    public string? Country { get; private set; }
 
     public virtual User? Owner { get; private set; }
     public virtual Category? Category { get; private set; }
@@ -86,7 +93,7 @@ public class Project : AuditableEntity
     public void Open()
     {
         if (Status != ProjectStatus.Draft)
-            throw new InvalidOperationException("只能打开草稿项目");
+            throw new InvalidOperationException("لا يمكن فتح المشروع إلا وهو في حالة المسودة");
             
         Status = ProjectStatus.Open;
         RaiseDomainEvent(new ProjectOpenedEvent(Id, OwnerId));
@@ -95,7 +102,7 @@ public class Project : AuditableEntity
     public void AssignFreelancer(Guid freelancerId, decimal agreedPrice)
     {
         if (Status != ProjectStatus.Open)
-            throw new InvalidOperationException("项目必须开放才能分配");
+            throw new InvalidOperationException("يجب أن يكون المشروع مفتوحاً لتعيين مقدم خدمة");
 
         AssignedFreelancerId = freelancerId;
         FinalPrice = agreedPrice;
@@ -106,7 +113,7 @@ public class Project : AuditableEntity
     public void Complete()
     {
         if (Status != ProjectStatus.InProgress)
-            throw new InvalidOperationException("只能完成进行中的项目");
+            throw new InvalidOperationException("لا يمكن إكمال المشروع إلا وهو قيد التنفيذ");
 
         Status = ProjectStatus.Completed;
         CompletedAt = DateTime.UtcNow;
@@ -115,7 +122,7 @@ public class Project : AuditableEntity
     public void Cancel(string reason)
     {
         if (Status == ProjectStatus.Completed)
-            throw new InvalidOperationException("无法取消已完成的項目");
+            throw new InvalidOperationException("لا يمكن إلغاء مشروع مكتمل");
 
         Status = ProjectStatus.Cancelled;
     }
