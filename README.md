@@ -34,29 +34,6 @@
 | Traditional platforms lack team collaboration | Digital Guilds for freelancer collectives and group projects |
 | Companies need vetted talent at scale | Head Hunters with AI-assisted talent recommendations |
 | Payment disputes slow down work | Escrow system with milestone-based contracts |
-
----
-
-## 🏗️ Architecture
-
-```
-┌──────────────────────────────────────────────────────┐
-│                    DEPI.API (Presentation)            │
-│  Controllers · Middleware · Filters · Swagger · Rate  │
-│                     Limiting · CORS                   │
-├──────────────────────────────────────────────────────┤
-│              DEPI.Application (Application)           │
-│  Use Cases (CQRS) · DTOs · Interfaces · Behaviors    │
-│  FluentValidation · AutoMapper · MediatR · Result<T> │
-├──────────────────────────────────────────────────────┤
-│                DEPI.Domain (Core Business)            │
-│  Entities · Enums · Domain Events · Base Classes      │
-│  Business Invariants · Static Factory Methods         │
-├──────────────────────────────────────────────────────┤
-│             DEPI.Infrastructure (Data & Services)     │
-│  EF Core DbContext · 64+ Repositories · Migrations   │
-│  Identity · JWT Token Service · Email Service         │
-└──────────────────────────────────────────────────────┘
 ```
 
 ### Design Patterns
@@ -92,166 +69,17 @@
 | **Swashbuckle** | 6.5.0 | Swagger/OpenAPI documentation |
 | **JwtBearer** | 8.0.0 | JWT authentication |
 | **Microsoft.Identity** | 8.17.0 | Token signing & validation |
-
-### Testing
-| Technology | Version |
-|-----------|---------|
-| xUnit | 2.6.4 |
-| Moq | 4.20.70 |
-| FluentAssertions | 6.12.0 |
-| Coverlet | 6.0.0 + 3.2.0 |
-| EF Core InMemory & SQLite | 8.0.0 |
-
 ---
-
-## ✨ Features & Modules
-
-### Core Freelance Platform
-- **Projects** — Create, open, manage projects (Hourly/FixedPrice) with skill requirements
-- **Proposals** — Submit, accept, reject, withdraw proposals with AI-backed scoring
-- **Contracts** — Milestone-based contracts with pause/complete lifecycle
-- **Wallets** — Multi-currency wallets with deposit, withdraw (1% fee), transfer, escrow
-- **Reviews** — 5-star rating system with responses
-
-### Identity & Security
-- JWT Bearer authentication with refresh token rotation
-- 6 user roles: Admin, Client, Freelancer, Student, HeadHunter, Coach
-- Password policies (digit + lowercase + uppercase, min 6 chars)
-- Rate limiting (100 req/min), CORS, global exception handling
-- Soft delete with audit trail
-
-### AI-Powered Features
-- **AI Matching Engine** — Scores freelancers on 10 dimensions (skills, experience, budget, location, availability, success rate, response time, quality, reliability, domain expertise)
-- **AI Price Prediction** — Predicts fair project pricing based on skills, experience, and complexity
-- **Skill Gap Analysis** — Identifies missing skills for career growth
-
-### Digital Guilds
-- Create & join freelancer collectives organized by specialization
-- Guild membership with skill portfolios
-- Collaborative project capabilities
-
-### Head Hunters
-- Talent scouting agents with AI-assisted recommendations
-- Assignment tracking and talent review workflows
-- Top-performer leaderboards
-
-### Coaching & Student Onboarding
-- **5-Step Student Journey**: Profile → Portfolio → Skills → Coach Assignment → Market Ready
-- Coach profiles with session scheduling
-- Session notes, feedback, action items, and ratings
-
-### Learning Platform (LMS) ( TODO )
-- Courses with ordered lessons and progress tracking
-- Learning paths (curated course sequences)
-- Certifications upon completion
-- Course reviews and ratings
-
-### Community
-- Posts (Text, Image, Video, Link, Poll, Announcement)
-- Forum threads with categories and replies
-- Likes, bookmarks, and sharing
-
-### Recruitment
-- Job board with categories and skill requirements
-- Job applications with attachments
-- Featured & type-filtered job listings
-
-### Company Profiles
-- Company pages with member management
-- Company projects and followers
-- Verified company badges
-
-### Messaging
-- Direct and group conversations
-- Message attachments and reply-to support
-- Notifications with read/unread tracking
-
-### Connects System
-- Gamified networking currency (purchase, earn, spend)
-- 10 earning rules (Complete Project +10, 5-Star Review +5, First Project +20, 7-Day Streak +25, etc.)
-- Subscription packs for premium freelancers
-
----
-
 ## 📊 Project Statistics
 
 | Metric | Value |
 |--------|-------|
 | Controllers | 24 |
-| API Endpoints | ~130 |
+| API Endpoints | ~130+ |
 | Domain Entities | 65 |
 | Repository Interfaces | 64+ |
 | NuGet Packages | 30 |
-| Seed Users | 7 (all roles)
 ---
-
-## 📁 Project Structure
-
-```
-DEPI_Platform/
-├── DEPI.Platform.sln
-├── README.md
-├── wiki/                           # GitHub Wiki pages
-├── docs/                           # Additional documentation
-├── src/
-│   ├── DEPI.Domain/                # Entities, Enums, Domain Events
-│   │   ├── Common/                 # Entity.cs, AuditableEntity.cs, DomainEventBase
-│   │   ├── Entities/               # 19 entity groups (65 entities)
-│   │   ├── Enums/                  # 14 enum types
-│   │   └── Interfaces/             # IRepository<T>
-│   ├── DEPI.Application/           # Business logic
-│   │   ├── Behaviors/              # Logging + Exception pipeline behaviors
-│   │   ├── Common/                 # Result<T>, Errors, ResultExtensions
-│   │   ├── DependencyInjection/    # ApplicationDI.cs
-│   │   ├── DTOs/                   # 12 DTO groups
-│   │   ├── Interfaces/             # Repository & service interfaces
-│   │   ├── MappingProfiles/        # 9 AutoMapper profiles
-│   │   ├── Repositories/           # 14 domain-specific repo interfaces
-│   │   ├── Services/               # AI Matching services
-│   │   └── UseCases/               # 23 feature areas (CQRS handlers)
-│   ├── DEPI.Infrastructure/        # Data access & external services
-│   │   ├── DependencyInjection/    # InfrastructureDI.cs (64+ registrations)
-│   │   ├── Persistence/
-│   │   │   ├── ApplicationDbContext.cs  # 65 DbSets
-│   │   │   ├── Configurations/     # 25 EF Core entity configs
-│   │   │   ├── Migrations/         # 4 migrations + snapshot
-│   │   │   └── Repositories/       # 23 repository implementations
-│   │   └── Services/               # TokenService, EmailService
-│   └── DEPI.API/                   # Web API
-│       ├── Controllers/            # 24 API controllers
-│       ├── Middleware/              # ExceptionHandlingMiddleware
-│       ├── SeedData/               # Database seeder
-│       ├── Filters/                # Action filters
-│       └── Program.cs              # Entry point & pipeline
-└── tests/
-    └── DEPI.Tests/                 # Unit & integration tests
-        ├── Application/
-        │   ├── Handlers/           # CQRS handler tests
-        │   └── Behaviors/          # Pipeline behavior tests
-        └── Infrastructure/         # Repository tests
-```
-
----
-
-## 🔐 Authentication & Authorization
-
-### JWT Token Flow
-```
-Client                    API Server
-  │                           │
-  ├── POST /api/auth/login ──►│ Validate credentials
-  │                           │ Generate AccessToken (HMAC-SHA256, 15min)
-  │                           │ Generate RefreshToken (64-byte random, 7 days)
-  │◄── { accessToken,        │
-  │      refreshToken } ──────┤
-  │                           │
-  ├── API call + Bearer ─────►│ Validate JWT (sub, email, jti, type claims)
-  │                           │ Check [Authorize(Roles="...")] attribute
-  │                           │
-  ├── POST /refresh ─────────►│ Rotate refresh token
-  │◄── New tokens ────────────┤
-```
-
 ### Role-Based Access Control
 
 | Role | Enum Value | Registered By | Core Permissions |
@@ -305,27 +133,7 @@ Client                    API Server
 # 1. Clone the repository
 git clone <repo-url>
 cd DEPI_Platform
-
-# 2. Configure connection string (appsettings.Development.json)
-# Default: "Data Source=MCDIESEL;Integrated Security=True;..."
-
-# 3. The JWT SecretKey is pre-configured for development
-
-# 4. Run the application
-cd src/DEPI.API
-dotnet run
-
-# Or open DEPI.Platform.sln in Visual Studio and press F5
-```
-
-### URLs
-| Environment | URL |
-|-------------|-----|
-| HTTPS API | `https://localhost:10212` |
-| HTTP API | `http://localhost:10213` |
-| Swagger UI | `https://localhost:10212/swagger` |
-| Health Check | `https://localhost:10212/health` |
-```
+---
 
 ## 📡 API Overview
 
@@ -357,9 +165,6 @@ dotnet run
 | **JobsController** | `/api/jobs` | 3 | Mixed |
 | **CoachingController** | `/api/coaching` | 6 | Mixed |
 | **StudentsController** | `/api/students` | 9 | Authorized |
-
-> **Total:** 24 Controllers | ~130 Endpoints
-
 ---
 
 ## 📚 Wiki
@@ -375,21 +180,6 @@ For detailed documentation, see the [Wiki](#):
 | [Setup Guide](wiki/Setup-Guide.md) | Development environment setup, Docker, CI/CD |
 | [Authentication](wiki/Authentication.md) | JWT flow, roles, permissions, security |
 | [Modules Guide](wiki/Modules.md) | Deep dive into each business module |
-
----
-
-## 🛡️ Security
-
-- **JWT Bearer Authentication** with HMAC-SHA256 signing
-- **Role-based Authorization** via `[Authorize(Roles = "...")]`
-- **Rate Limiting** — 100 requests/minute with queue limit of 10
-- **Global Exception Handling** — centralized middleware returns structured JSON errors
-- **Input Validation** — FluentValidation pipeline for all commands/queries
-- **CORS** — configurable allowed origins
-- **HTTPS Redirection** — enforced
-- **Soft Delete** — data is never truly deleted (auditable entities)
-- **Password Policies** — digit, lowercase, uppercase, 6+ characters
-
 ---
 
 ## 📄 License
