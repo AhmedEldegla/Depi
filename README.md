@@ -36,6 +36,8 @@
 | Payment disputes slow down work | Escrow system with milestone-based contracts |
 ```
 
+```
+
 ### Design Patterns
 
 | Pattern | Implementation |
@@ -134,7 +136,7 @@
 git clone <repo-url>
 cd DEPI_Platform
 ---
-
+```
 ## 📡 API Overview
 
 ### Complete Endpoint Map
