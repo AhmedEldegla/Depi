@@ -1,111 +1,78 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
+using DEPI.Application.DTOs.Proposals;
 using DEPI.Application.UseCases.Proposals.SubmitProposal;
 using DEPI.Application.UseCases.Proposals.AcceptProposal;
 using DEPI.Application.UseCases.Proposals.RejectProposal;
 using DEPI.Application.UseCases.Proposals.WithdrawProposal;
-using DEPI.Application.UseCases.Proposals.GetMyProposals;
-using DEPI.Application.UseCases.Proposals.GetProposalsByProject;
-using DEPI.Application.DTOs.Proposals;
+using DEPI.Application.UseCases.Proposals.Queries;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Depi.API.Controllers;
+namespace DEPI.API.Controllers;
 
 [ApiController]
-[Route("api/proposals")]
+[Route("api/[controller]")]
+[Authorize]
 public class ProposalsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    public ProposalsController(IMediator mediator) => _mediator = mediator;
 
-    public ProposalsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
-    // Submit Proposal (Freelancer)
-    [Authorize(Roles = "Freelancer")]
     [HttpPost]
-    public async Task<IActionResult> Submit([FromBody] SubmitProposalRequest request)
+    [Authorize(Roles = "Admin,Freelancer,Student")]
+    public async Task<IActionResult> Submit([FromBody] SubmitProposalRequest request, CancellationToken ct)
     {
-        var userId = GetUserId();
-
-        var result = await _mediator.Send(
-            new SubmitProposalCommand(userId, request));
-
-        return Ok(result);
+        var freelancerId = GetCurrentUserId();
+        var result = await _mediator.Send(new SubmitProposalCommand(freelancerId, request), ct);
+        return Created("", result);
     }
 
-    // Accept Proposal (Client)
-    [Authorize(Roles = "Client")]
     [HttpPost("{id:guid}/accept")]
-    public async Task<IActionResult> Accept(Guid id)
+    [Authorize(Roles = "Admin,Client")]
+    public async Task<IActionResult> Accept(Guid id, CancellationToken ct)
     {
-        var userId = GetUserId();
-
-        var result = await _mediator.Send(
-            new AcceptProposalCommand(id, userId));
-
+        var clientId = GetCurrentUserId();
+        var result = await _mediator.Send(new AcceptProposalCommand(id, clientId), ct);
         return Ok(result);
     }
 
-    // Reject Proposal (Client)
-    [Authorize(Roles = "Client")]
     [HttpPost("{id:guid}/reject")]
-    public async Task<IActionResult> Reject(Guid id, [FromBody] string? reason)
+    [Authorize(Roles = "Admin,Client")]
+    public async Task<IActionResult> Reject(Guid id, [FromBody] string? reason, CancellationToken ct)
     {
-        var userId = GetUserId();
-
-        var result = await _mediator.Send(
-            new RejectProposalCommand(id, userId, reason));
-
+        var clientId = GetCurrentUserId();
+        var result = await _mediator.Send(new RejectProposalCommand(id, clientId, reason ?? "Not specified"), ct);
         return Ok(result);
     }
 
-    // Withdraw Proposal (Freelancer)
-    [Authorize(Roles = "Freelancer")]
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Withdraw(Guid id)
+    [HttpPost("{id:guid}/withdraw")]
+    [Authorize(Roles = "Admin,Freelancer,Student")]
+    public async Task<IActionResult> Withdraw(Guid id, CancellationToken ct)
     {
-        var userId = GetUserId();
-
-        await _mediator.Send(
-            new WithdrawProposalCommand(id, userId));
-
+        var freelancerId = GetCurrentUserId();
+        await _mediator.Send(new WithdrawProposalCommand(id, freelancerId), ct);
         return NoContent();
     }
 
-    // My Proposals (Freelancer)
-    [Authorize(Roles = "Freelancer")]
-    [HttpGet("my")]
-    public async Task<IActionResult> GetMy()
+    [HttpGet("my-proposals")]
+    [Authorize(Roles = "Admin,Freelancer,Student")]
+    public async Task<IActionResult> MyProposals(CancellationToken ct)
     {
-        var userId = GetUserId();
-
-        var result = await _mediator.Send(
-            new GetMyProposalsQuery(userId));
-
+        var result = await _mediator.Send(new GetMyProposalsQuery(GetCurrentUserId()), ct);
         return Ok(result);
     }
 
-    // Get Proposals by Project
-
-    [Authorize]
     [HttpGet("project/{projectId:guid}")]
-    public async Task<IActionResult> GetByProject(Guid projectId)
+    [Authorize(Roles = "Admin,Client")]
+    public async Task<IActionResult> ByProject(Guid projectId, CancellationToken ct)
     {
-        var result = await _mediator.Send(
-            new GetProposalsByProjectQuery(projectId));
-
+        var result = await _mediator.Send(new GetProposalsByProjectQuery(projectId), ct);
         return Ok(result);
     }
 
-    // Helper
-    private Guid GetUserId()
+    private Guid GetCurrentUserId()
     {
-        return Guid.Parse(
-            User.FindFirst("sub")?.Value
-            ?? throw new UnauthorizedAccessException("User not authenticated")
-        );
+        var sub = User.FindFirst("sub")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(sub, out var uid) ? uid : Guid.Empty;
     }
 }
