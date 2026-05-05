@@ -5,23 +5,23 @@ namespace DEPI.Application.Repositories.Profiles;
 
 public interface IFreelancerProfileRepository : IRepository<UserProfile>
 {
-    Task<UserProfile?> GetByUserIdAsync(string userId);
+    Task<UserProfile?> GetByUserIdAsync(Guid userId);
 }
 
 public interface IFreelancerSkillRepository : IRepository<FreelancerSkill>
 {
-    Task<List<FreelancerSkill>> GetByFreelancerIdAsync(string freelancerId);
-    Task<FreelancerSkill?> GetByUserAndSkillAsync(string userId, Guid skillId);
+    Task<List<FreelancerSkill>> GetByFreelancerIdAsync(Guid freelancerId);
+    Task<FreelancerSkill?> GetByUserAndSkillAsync(Guid userId, Guid skillId);
 }
 
 public interface IPortfolioItemRepository : IRepository<PortfolioItem>
 {
-    Task<List<PortfolioItem>> GetByUserIdAsync(string userId);
-    Task<List<PortfolioItem>> GetFeaturedAsync(string userId);
+    Task<List<PortfolioItem>> GetByUserIdAsync(Guid userId);
+    Task<List<PortfolioItem>> GetFeaturedAsync(Guid userId);
 }
 
 public interface IServicePackageRepository : IRepository<ServicePackage>
 {
-    Task<List<ServicePackage>> GetByUserIdAsync(string userId);
-    Task<List<ServicePackage>> GetActiveAsync(string userId);
+    Task<List<ServicePackage>> GetByUserIdAsync(Guid userId);
+    Task<List<ServicePackage>> GetActiveAsync(Guid userId);
 }

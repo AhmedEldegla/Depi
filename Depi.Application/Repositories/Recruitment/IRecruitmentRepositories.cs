@@ -10,10 +10,10 @@ public interface IJobRepository : IRepository<Job>
 {
     Task<List<Job>> GetActiveJobsAsync();
     Task<List<Job>> GetByCompanyIdAsync(Guid companyId);
-    Task<List<Job>> GetByOwnerIdAsync(string ownerId);
+    Task<List<Job>> GetByOwnerIdAsync(Guid ownerId);
     Task<List<Job>> SearchJobsAsync(string searchTerm, JobType? type = null, string? location = null);
     Task<List<Job>> GetFeaturedJobsAsync(int count);
-    Task<List<Job>> GetRecommendedForUserAsync(string userId, int count);
+    Task<List<Job>> GetRecommendedForUserAsync(Guid userId, int count);
     Task IncrementViewsAsync(Guid jobId);
     Task IncrementApplicationsAsync(Guid jobId);
 }
@@ -28,10 +28,10 @@ public interface IJobCategoryRepository : IRepository<JobCategory>
 public interface IJobApplicationRepository : IRepository<JobApplication>
 {
     Task<List<JobApplication>> GetByJobIdAsync(Guid jobId);
-    Task<List<JobApplication>> GetByApplicantIdAsync(string applicantId);
+    Task<List<JobApplication>> GetByApplicantIdAsync(Guid applicantId);
     Task<List<JobApplication>> GetShortlistedAsync(Guid jobId);
     Task<JobApplication?> GetWithDetailsAsync(Guid applicationId);
-    Task<List<JobApplication>> GetRecentApplicationsAsync(string userId, int count);
+    Task<List<JobApplication>> GetRecentApplicationsAsync(Guid userId, int count);
 }
 
 public interface IJobSkillRepository : IRepository<JobSkill> { }

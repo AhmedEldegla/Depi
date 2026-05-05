@@ -39,7 +39,7 @@ public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand,
 
     public async Task<CompanyResponse> Handle(CreateCompanyCommand r, CancellationToken ct)
     {
-        var company = new Company { OwnerId = r.OwnerId.ToString(), Name = r.Request.Name, Description = r.Request.Description, Website = r.Request.Website ?? "", Size = r.Request.Size ?? "1-10", Location = r.Request.Location ?? "" };
+        var company = new Company { OwnerId = r.OwnerId, Name = r.Request.Name, Description = r.Request.Description, Website = r.Request.Website ?? "", Size = r.Request.Size ?? "1-10", Location = r.Request.Location ?? "" };
         await _repo.AddAsync(company, ct);
         return _mapper.Map<CompanyResponse>(company);
     }
@@ -54,7 +54,7 @@ public class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyCommand,
     public async Task<CompanyResponse> Handle(UpdateCompanyCommand r, CancellationToken ct)
     {
         var company = await _repo.GetByIdAsync(r.CompanyId, ct) ?? throw new KeyNotFoundException(Errors.NotFound("Company"));
-        if (company.OwnerId != r.UserId.ToString()) throw new UnauthorizedAccessException(Errors.Forbidden());
+        if (company.OwnerId != r.UserId) throw new UnauthorizedAccessException(Errors.Forbidden());
         company.UpdateInfo(r.Request.Name, r.Request.Description, r.Request.Website ?? "", r.Request.Size ?? "1-10", r.Request.Location ?? "");
         await _repo.UpdateAsync(company, ct);
         return _mapper.Map<CompanyResponse>(company);
@@ -69,7 +69,7 @@ public class DeleteCompanyCommandHandler : IRequestHandler<DeleteCompanyCommand>
     public async Task Handle(DeleteCompanyCommand r, CancellationToken ct)
     {
         var company = await _repo.GetByIdAsync(r.CompanyId, ct) ?? throw new KeyNotFoundException(Errors.NotFound("Company"));
-        if (company.OwnerId != r.UserId.ToString()) throw new UnauthorizedAccessException(Errors.Forbidden());
+        if (company.OwnerId != r.UserId) throw new UnauthorizedAccessException(Errors.Forbidden());
         await _repo.DeleteAsync(r.CompanyId, ct);
     }
 }

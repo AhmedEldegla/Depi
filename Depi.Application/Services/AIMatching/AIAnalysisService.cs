@@ -81,7 +81,7 @@ public class AIAnalysisService : IAIAnalysisService
         return response;
     }
 
-    public async Task<string> AnalyzeFreelancerProfileAsync(string freelancerId)
+    public async Task<string> AnalyzeFreelancerProfileAsync(Guid freelancerId)
     {
         var startTime = DateTime.UtcNow;
         var profile = await _profileRepository.GetByUserIdAsync(freelancerId);
@@ -133,7 +133,7 @@ public class AIAnalysisService : IAIAnalysisService
 
         var response = analysis.ToString();
         
-        await LogAIAnalysisAsync("AnalyzeFreelancerProfile", freelancerId, response, startTime);
+        await LogAIAnalysisAsync("AnalyzeFreelancerProfile", freelancerId.ToString(), response, startTime);
         
         return response;
     }
@@ -197,7 +197,7 @@ public class AIAnalysisService : IAIAnalysisService
         return response;
     }
 
-    public async Task<decimal> CalculateSkillProficiencyAsync(string freelancerId, Guid skillId)
+    public async Task<decimal> CalculateSkillProficiencyAsync(Guid freelancerId, Guid skillId)
     {
         var skills = await _skillRepository.GetAllAsync();
         var skill = skills.FirstOrDefault(s => s.Id == skillId);

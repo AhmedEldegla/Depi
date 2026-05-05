@@ -9,6 +9,6 @@ public interface IReviewRepository : IRepository<Review>
     Task<List<Review>> GetByProjectIdAsync(Guid projectId);
     Task<List<Review>> GetByContractIdAsync(Guid contractId);
     Task<Review?> GetByIdAsync(Guid id);
-    Task<decimal> GetAverageRatingAsync(string userId);
-    Task<int> GetReviewCountAsync(string userId);
+    Task<decimal> GetAverageRatingAsync(Guid userId);
+    Task<int> GetReviewCountAsync(Guid userId);
 }

@@ -26,12 +26,10 @@ public class FreelancerScoringService : IFreelancerScoringService
         _scoringRuleRepository = scoringRuleRepository;
     }
 
-    public async Task<FreelancerScoreResult> CalculateFreelancerScoreAsync(string freelancerId)
+    public async Task<FreelancerScoreResult> CalculateFreelancerScoreAsync(Guid freelancerId)
     {
         var profile = await _profileRepository.GetByUserIdAsync(freelancerId);
-        var reviews = Guid.TryParse(freelancerId, out var freelancerGuid)
-            ? await _reviewRepository.GetByRevieweeIdAsync(freelancerGuid)
-            : new List<DEPI.Domain.Entities.Reviews.Review>();
+        var reviews = await _reviewRepository.GetByRevieweeIdAsync(freelancerId);
 
         var skillScore = CalculateSkillScore(profile);
         var projectSuccessScore = CalculateProjectSuccessScore(profile);
@@ -78,7 +76,7 @@ public class FreelancerScoringService : IFreelancerScoringService
         };
     }
 
-    public async Task<FreelancerScoreResult> GetOrCalculateScoreAsync(string freelancerId)
+    public async Task<FreelancerScoreResult> GetOrCalculateScoreAsync(Guid freelancerId)
     {
         var existingScore = await _freelancerScoreRepository.GetByFreelancerIdAsync(freelancerId);
         
@@ -100,7 +98,7 @@ public class FreelancerScoringService : IFreelancerScoringService
         return scores.Select(MapToResult).ToList();
     }
 
-    public async Task<Dictionary<string, decimal>> GetScoreBreakdownAsync(string freelancerId)
+    public async Task<Dictionary<string, decimal>> GetScoreBreakdownAsync(Guid freelancerId)
     {
         var score = await CalculateFreelancerScoreAsync(freelancerId);
         

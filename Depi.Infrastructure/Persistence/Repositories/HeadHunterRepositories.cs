@@ -8,7 +8,7 @@ public class HeadHunterRepository : Repository<HeadHunter>, IHeadHunterRepositor
 {
     public HeadHunterRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<HeadHunter?> GetByUserIdAsync(string userId)
+    public async Task<HeadHunter?> GetByUserIdAsync(Guid userId)
         => await _dbSet.FirstOrDefaultAsync(h => h.UserId == userId);
 
     public async Task<List<HeadHunter>> GetActiveAsync()
@@ -31,16 +31,14 @@ public class HeadHunterAssignmentRepository : Repository<HeadHunterAssignment>, 
     public async Task<List<HeadHunterAssignment>> GetActiveAssignmentsAsync()
         => await _dbSet.Where(a => a.Status == AssignmentStatus.Active).ToListAsync();
 
-    public async Task<List<HeadHunterAssignment>> GetByClientIdAsync(string clientId)
+    public async Task<List<HeadHunterAssignment>> GetByClientIdAsync(Guid clientId)
     {
-        var clientGuid = Guid.Parse(clientId);
-        return await _dbSet.Where(a => a.ClientId == clientGuid).OrderByDescending(a => a.CreatedAt).ToListAsync();
+        return await _dbSet.Where(a => a.ClientId == clientId).OrderByDescending(a => a.CreatedAt).ToListAsync();
     }
 
-    public async Task<HeadHunterAssignment?> GetActiveAssignmentAsync(Guid hunterId, string clientId)
+    public async Task<HeadHunterAssignment?> GetActiveAssignmentAsync(Guid hunterId, Guid clientId)
     {
-        var clientGuid = Guid.Parse(clientId);
-        return await _dbSet.FirstOrDefaultAsync(a => a.HeadHunterId == hunterId && a.ClientId == clientGuid && a.Status == AssignmentStatus.Active);
+        return await _dbSet.FirstOrDefaultAsync(a => a.HeadHunterId == hunterId && a.ClientId == clientId && a.Status == AssignmentStatus.Active);
     }
 }
 
@@ -57,6 +55,6 @@ public class TalentRecommendationRepository : Repository<TalentRecommendation>, 
     public async Task<List<TalentRecommendation>> GetPendingAsync(Guid assignmentId)
         => await _dbSet.Where(r => r.AssignmentId == assignmentId && r.Result == RecommendationResult.Pending).ToListAsync();
 
-    public async Task<List<TalentRecommendation>> GetByUserIdAsync(string userId)
+    public async Task<List<TalentRecommendation>> GetByUserIdAsync(Guid userId)
         => await _dbSet.Where(r => r.RecommendedUserId == userId).OrderByDescending(r => r.CreatedAt).ToListAsync();
 }

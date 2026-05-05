@@ -13,7 +13,7 @@ public class CommunityPostRepository : Repository<CommunityPost>, ICommunityPost
         return await _dbSet.Where(p => p.Status == PostStatus.Published).OrderByDescending(p => p.CreatedAt).ToListAsync();
     }
 
-    public async Task<List<CommunityPost>> GetByAuthorIdAsync(string authorId)
+    public async Task<List<CommunityPost>> GetByAuthorIdAsync(Guid authorId)
     {
         return await _dbSet.Where(p => p.AuthorId == authorId).ToListAsync();
     }
@@ -43,7 +43,7 @@ public class PostCommentRepository : Repository<PostComment>, IPostCommentReposi
         return await _dbSet.Where(c => c.PostId == postId).OrderBy(c => c.CreatedAt).ToListAsync();
     }
 
-    public async Task<List<PostComment>> GetByAuthorIdAsync(string authorId)
+    public async Task<List<PostComment>> GetByAuthorIdAsync(Guid authorId)
     {
         return await _dbSet.Where(c => c.AuthorId == authorId).ToListAsync();
     }
@@ -58,7 +58,7 @@ public class PostLikeRepository : Repository<PostLike>, IPostLikeRepository
 {
     public PostLikeRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<bool> IsLikedAsync(Guid postId, string userId)
+    public async Task<bool> IsLikedAsync(Guid postId, Guid userId)
     {
         return await _dbSet.AnyAsync(l => l.PostId == postId && l.UserId == userId);
     }
@@ -73,12 +73,12 @@ public class PostBookmarkRepository : Repository<PostBookmark>, IPostBookmarkRep
 {
     public PostBookmarkRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<List<PostBookmark>> GetByUserIdAsync(string userId)
+    public async Task<List<PostBookmark>> GetByUserIdAsync(Guid userId)
     {
         return await _dbSet.Where(b => b.UserId == userId).ToListAsync();
     }
 
-    public async Task<bool> IsBookmarkedAsync(Guid postId, string userId)
+    public async Task<bool> IsBookmarkedAsync(Guid postId, Guid userId)
     {
         return await _dbSet.AnyAsync(b => b.PostId == postId && b.UserId == userId);
     }
@@ -93,7 +93,7 @@ public class ForumThreadRepository : Repository<ForumThread>, IForumThreadReposi
         return await _dbSet.Where(t => t.CategoryId == categoryId).OrderByDescending(t => t.CreatedAt).ToListAsync();
     }
 
-    public async Task<List<ForumThread>> GetByAuthorIdAsync(string authorId)
+    public async Task<List<ForumThread>> GetByAuthorIdAsync(Guid authorId)
     {
         return await _dbSet.Where(t => t.AuthorId == authorId).ToListAsync();
     }

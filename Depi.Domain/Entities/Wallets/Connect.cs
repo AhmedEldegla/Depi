@@ -17,7 +17,7 @@ public class Connect : Entity
 
 public class ConnectPurchase : AuditableEntity
 {
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public Guid ConnectId { get; set; }
     public int Quantity { get; set; }
     public int FreeConnects { get; set; }
@@ -41,7 +41,7 @@ public enum PurchaseStatus
 
 public class ConnectUsage : AuditableEntity
 {
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public Guid? ProjectId { get; set; }
     public Guid? JobId { get; set; }
     public int ConnectsUsed { get; set; }
@@ -53,7 +53,7 @@ public class ConnectUsage : AuditableEntity
 
 public class FreelancerSubscription : AuditableEntity
 {
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public SubscriptionTier Tier { get; set; } = SubscriptionTier.Basic;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }

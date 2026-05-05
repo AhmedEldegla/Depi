@@ -7,7 +7,7 @@ namespace DEPI.Domain.Entities.Companies;
 
 public class Company : AuditableEntity
 {
-    public string OwnerId { get; set; } = string.Empty;
+    public Guid OwnerId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string LogoUrl { get; set; } = string.Empty;
@@ -44,7 +44,7 @@ public class Company : AuditableEntity
 public class CompanyMember : AuditableEntity
 {
     public Guid CompanyId { get; set; }
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public string Role { get; set; } = "Member";
     public string Title { get; set; } = string.Empty;
     public bool CanManage { get; set; }
@@ -71,7 +71,7 @@ public class CompanyProject : AuditableEntity
 public class CompanyFollower : AuditableEntity
 {
     public Guid CompanyId { get; set; }
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public bool IsNotificationsEnabled { get; set; } = true;
 
     public virtual Company Company { get; set; } = null!;
@@ -81,15 +81,12 @@ public class CompanyFollower : AuditableEntity
 public class CompanyReview : AuditableEntity
 {
     public Guid CompanyId { get; set; }
-    public string AuthorId { get; set; } = string.Empty;
+    public Guid AuthorId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
     public int Rating { get; set; }
     public Guid? ProjectId { get; set; }
     public bool IsVerified { get; set; }
-    public int HelpfulnessScore { get; set; }
-    public int DisagreeCount { get; set; }
-    public int AgreeCount { get; set; }
 
     public virtual Company Company { get; set; } = null!;
     public virtual User Author { get; set; } = null!;

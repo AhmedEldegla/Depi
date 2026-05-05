@@ -13,14 +13,14 @@ public class OnboardingSummaryResponse { public StudentProfileResponse Profile {
 public record CreateStudentProfileRequest(string PhoneNumber, string? Bio, string? Skills, string? Goals);
 public record CompletePortfolioStepRequest(int PortfolioItemsCount);
 public record CompleteSkillsStepRequest(decimal AssessmentScore);
-public record AssignCoachRequest(string CoachId);
+public record AssignCoachRequest(Guid CoachId);
 
 public record GetMyStudentProfileQuery(Guid UserId) : IRequest<StudentProfileResponse?>;
 public record GetStudentOnboardingSummaryQuery(Guid UserId) : IRequest<OnboardingSummaryResponse?>;
 public record CreateStudentProfileCommand(Guid UserId, CreateStudentProfileRequest Request) : IRequest<StudentProfileResponse>;
 public record CompleteStudentPortfolioCommand(Guid UserId, CompletePortfolioStepRequest Request) : IRequest<StudentProfileResponse>;
 public record CompleteStudentSkillsCommand(Guid UserId, CompleteSkillsStepRequest Request) : IRequest<StudentProfileResponse>;
-public record AssignStudentCoachCommand(Guid StudentId, string CoachId) : IRequest<StudentProfileResponse>;
+public record AssignStudentCoachCommand(Guid StudentId, Guid CoachId) : IRequest<StudentProfileResponse>;
 public record PromoteStudentToFreelancerCommand(Guid UserId, string PromotedBy) : IRequest<StudentProfileResponse>;
 public record GetReadyStudentsQuery : IRequest<List<StudentProfileResponse>>;
 
@@ -28,7 +28,7 @@ public class GetMyStudentProfileQueryHandler : IRequestHandler<GetMyStudentProfi
 {
     private readonly IStudentProfileRepository _repo; private readonly IMapper _mapper;
     public GetMyStudentProfileQueryHandler(IStudentProfileRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
-    public async Task<StudentProfileResponse?> Handle(GetMyStudentProfileQuery r, CancellationToken ct) => (await _repo.GetByUserIdAsync(r.UserId.ToString())) is { } s ? _mapper.Map<StudentProfileResponse>(s) : null;
+    public async Task<StudentProfileResponse?> Handle(GetMyStudentProfileQuery r, CancellationToken ct) => (await _repo.GetByUserIdAsync(r.UserId)) is { } s ? _mapper.Map<StudentProfileResponse>(s) : null;
 }
 
 public class GetStudentOnboardingSummaryQueryHandler : IRequestHandler<GetStudentOnboardingSummaryQuery, OnboardingSummaryResponse?>
@@ -37,9 +37,9 @@ public class GetStudentOnboardingSummaryQueryHandler : IRequestHandler<GetStuden
     public GetStudentOnboardingSummaryQueryHandler(IStudentProfileRepository sRepo, ICoachingSessionRepository cRepo, IMapper mapper) { _studentRepo = sRepo; _coachingRepo = cRepo; _mapper = mapper; }
     public async Task<OnboardingSummaryResponse?> Handle(GetStudentOnboardingSummaryQuery r, CancellationToken ct)
     {
-        var profile = await _studentRepo.GetByUserIdAsync(r.UserId.ToString());
+        var profile = await _studentRepo.GetByUserIdAsync(r.UserId);
         if (profile == null) return null;
-        var upcomingSessions = await _coachingRepo.GetUpcomingAsync(r.UserId.ToString());
+        var upcomingSessions = await _coachingRepo.GetUpcomingAsync(r.UserId);
         return new OnboardingSummaryResponse
         {
             Profile = _mapper.Map<StudentProfileResponse>(profile),
@@ -57,9 +57,9 @@ public class CreateStudentProfileCommandHandler : IRequestHandler<CreateStudentP
     public CreateStudentProfileCommandHandler(IStudentProfileRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<StudentProfileResponse> Handle(CreateStudentProfileCommand r, CancellationToken ct)
     {
-        var existing = await _repo.GetByUserIdAsync(r.UserId.ToString());
+        var existing = await _repo.GetByUserIdAsync(r.UserId);
         if (existing != null) throw new InvalidOperationException(Errors.AlreadyExists("StudentProfile"));
-        var profile = new StudentProfile { UserId = r.UserId.ToString(), PhoneNumber = r.Request.PhoneNumber, Bio = r.Request.Bio ?? "", Skills = r.Request.Skills ?? "", Goals = r.Request.Goals ?? "", EnrollmentDate = DateTime.UtcNow };
+        var profile = new StudentProfile { UserId = r.UserId, PhoneNumber = r.Request.PhoneNumber, Bio = r.Request.Bio ?? "", Skills = r.Request.Skills ?? "", Goals = r.Request.Goals ?? "", EnrollmentDate = DateTime.UtcNow };
         await _repo.AddAsync(profile, ct);
         return _mapper.Map<StudentProfileResponse>(profile);
     }
@@ -71,7 +71,7 @@ public class CompleteStudentPortfolioCommandHandler : IRequestHandler<CompleteSt
     public CompleteStudentPortfolioCommandHandler(IStudentProfileRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<StudentProfileResponse> Handle(CompleteStudentPortfolioCommand r, CancellationToken ct)
     {
-        var profile = await _repo.GetByUserIdAsync(r.UserId.ToString()) ?? throw new KeyNotFoundException(Errors.NotFound("StudentProfile"));
+        var profile = await _repo.GetByUserIdAsync(r.UserId) ?? throw new KeyNotFoundException(Errors.NotFound("StudentProfile"));
         if (r.Request.PortfolioItemsCount >= 3) { profile.CompletePortfolio(); profile.CompleteStep(); }
         await _repo.UpdateAsync(profile, ct);
         return _mapper.Map<StudentProfileResponse>(profile);
@@ -84,7 +84,7 @@ public class CompleteStudentSkillsCommandHandler : IRequestHandler<CompleteStude
     public CompleteStudentSkillsCommandHandler(IStudentProfileRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<StudentProfileResponse> Handle(CompleteStudentSkillsCommand r, CancellationToken ct)
     {
-        var profile = await _repo.GetByUserIdAsync(r.UserId.ToString()) ?? throw new KeyNotFoundException(Errors.NotFound("StudentProfile"));
+        var profile = await _repo.GetByUserIdAsync(r.UserId) ?? throw new KeyNotFoundException(Errors.NotFound("StudentProfile"));
         profile.CompleteSkillsAssessment(r.Request.AssessmentScore); profile.CompleteStep();
         if (profile.ReadinessScore >= 60) profile.IsReadyForMarket = true;
         await _repo.UpdateAsync(profile, ct);
@@ -98,7 +98,7 @@ public class AssignStudentCoachCommandHandler : IRequestHandler<AssignStudentCoa
     public AssignStudentCoachCommandHandler(IStudentProfileRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<StudentProfileResponse> Handle(AssignStudentCoachCommand r, CancellationToken ct)
     {
-        var profile = await _repo.GetByUserIdAsync(r.StudentId.ToString()) ?? throw new KeyNotFoundException(Errors.NotFound("StudentProfile"));
+        var profile = await _repo.GetByUserIdAsync(r.StudentId) ?? throw new KeyNotFoundException(Errors.NotFound("StudentProfile"));
         profile.AssignCoach(r.CoachId); profile.CompleteStep();
         await _repo.UpdateAsync(profile, ct);
         return _mapper.Map<StudentProfileResponse>(profile);
@@ -111,7 +111,7 @@ public class PromoteStudentToFreelancerCommandHandler : IRequestHandler<PromoteS
     public PromoteStudentToFreelancerCommandHandler(IStudentProfileRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<StudentProfileResponse> Handle(PromoteStudentToFreelancerCommand r, CancellationToken ct)
     {
-        var profile = await _repo.GetByUserIdAsync(r.UserId.ToString()) ?? throw new KeyNotFoundException(Errors.NotFound("StudentProfile"));
+        var profile = await _repo.GetByUserIdAsync(r.UserId) ?? throw new KeyNotFoundException(Errors.NotFound("StudentProfile"));
         profile.PromoteToFreelancer(r.PromotedBy); profile.Graduate();
         await _repo.UpdateAsync(profile, ct);
         return _mapper.Map<StudentProfileResponse>(profile);

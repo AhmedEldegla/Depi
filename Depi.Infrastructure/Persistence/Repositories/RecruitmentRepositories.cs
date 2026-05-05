@@ -18,7 +18,7 @@ public class JobRepository : Repository<Job>, IJobRepository
         return await _dbSet.Where(j => j.CompanyId == companyId).ToListAsync();
     }
 
-    public async Task<List<Job>> GetByOwnerIdAsync(string ownerId)
+    public async Task<List<Job>> GetByOwnerIdAsync(Guid ownerId)
     {
         return await _dbSet.Where(j => j.OwnerId == ownerId).ToListAsync();
     }
@@ -41,7 +41,7 @@ public class JobRepository : Repository<Job>, IJobRepository
         return await _dbSet.Where(j => j.IsFeatured).OrderByDescending(j => j.CreatedAt).Take(count).ToListAsync();
     }
 
-    public async Task<List<Job>> GetRecommendedForUserAsync(string userId, int count)
+    public async Task<List<Job>> GetRecommendedForUserAsync(Guid userId, int count)
     {
         return await _dbSet
             .Where(j => j.Status == JobStatus.Active)
@@ -94,7 +94,7 @@ public class JobApplicationRepository : Repository<JobApplication>, IJobApplicat
         return await _dbSet.Where(a => a.JobId == jobId).OrderByDescending(a => a.CreatedAt).ToListAsync();
     }
 
-    public async Task<List<JobApplication>> GetByApplicantIdAsync(string applicantId)
+    public async Task<List<JobApplication>> GetByApplicantIdAsync(Guid applicantId)
     {
         return await _dbSet.Where(a => a.ApplicantId == applicantId).ToListAsync();
     }
@@ -113,7 +113,7 @@ public class JobApplicationRepository : Repository<JobApplication>, IJobApplicat
             .FirstOrDefaultAsync(a => a.Id == applicationId);
     }
 
-    public async Task<List<JobApplication>> GetRecentApplicationsAsync(string userId, int count)
+    public async Task<List<JobApplication>> GetRecentApplicationsAsync(Guid userId, int count)
     {
         return await _dbSet.Where(a => a.ApplicantId == userId).OrderByDescending(a => a.CreatedAt).Take(count).ToListAsync();
     }

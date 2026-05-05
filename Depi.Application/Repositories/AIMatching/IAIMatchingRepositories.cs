@@ -9,14 +9,14 @@ namespace DEPI.Application.Repositories.AIMatching;
 public interface ISkillMatchRepository : IRepository<SkillMatch>
 {
     Task<List<SkillMatch>> GetByProjectIdAsync(Guid projectId);
-    Task<List<SkillMatch>> GetByFreelancerIdAsync(string freelancerId);
+    Task<List<SkillMatch>> GetByFreelancerIdAsync(Guid freelancerId);
     Task<List<SkillMatch>> GetMatchesAboveThresholdAsync(Guid projectId, decimal threshold);
 }
 
 public interface IProjectMatchRepository : IRepository<ProjectMatch>
 {
     Task<List<ProjectMatch>> GetByProjectIdAsync(Guid projectId);
-    Task<List<ProjectMatch>> GetByFreelancerIdAsync(string freelancerId);
+    Task<List<ProjectMatch>> GetByFreelancerIdAsync(Guid freelancerId);
     Task<ProjectMatch?> GetBestMatchForProjectAsync(Guid projectId);
     Task<List<ProjectMatch>> GetTopMatchesAsync(Guid projectId, int count);
 }
@@ -24,14 +24,14 @@ public interface IProjectMatchRepository : IRepository<ProjectMatch>
 public interface IJobMatchRepository : IRepository<JobMatch>
 {
     Task<List<JobMatch>> GetByJobIdAsync(Guid jobId);
-    Task<List<JobMatch>> GetByFreelancerIdAsync(string freelancerId);
+    Task<List<JobMatch>> GetByFreelancerIdAsync(Guid freelancerId);
     Task<JobMatch?> GetBestMatchForJobAsync(Guid jobId);
     Task<List<JobMatch>> GetTopMatchesAsync(Guid jobId, int count);
 }
 
 public interface IFreelancerScoreRepository : IRepository<FreelancerScore>
 {
-    Task<FreelancerScore?> GetByFreelancerIdAsync(string freelancerId);
+    Task<FreelancerScore?> GetByFreelancerIdAsync(Guid freelancerId);
     Task<List<FreelancerScore>> GetTopScoredAsync(int count);
 }
 
@@ -43,9 +43,9 @@ public interface IScoringRuleRepository : IRepository<ScoringRule>
 
 public interface IRecommendationRepository : IRepository<Recommendation>
 {
-    Task<List<Recommendation>> GetByUserIdAsync(string userId);
-    Task<List<Recommendation>> GetActiveForUserAsync(string userId);
-    Task<List<Recommendation>> GetByTypeAsync(string userId, RecommendationType type);
+    Task<List<Recommendation>> GetByUserIdAsync(Guid userId);
+    Task<List<Recommendation>> GetActiveForUserAsync(Guid userId);
+    Task<List<Recommendation>> GetByTypeAsync(Guid userId, RecommendationType type);
 }
 
 public interface IAIModelConfigRepository : IRepository<AIModelConfig>
@@ -56,7 +56,7 @@ public interface IAIModelConfigRepository : IRepository<AIModelConfig>
 
 public interface IAILogRepository : IRepository<AILog>
 {
-    Task<List<AILog>> GetByUserIdAsync(string userId);
+    Task<List<AILog>> GetByUserIdAsync(Guid userId);
     Task<List<AILog>> GetByActionAsync(string action);
     Task<List<AILog>> GetRecentLogsAsync(int count);
 }

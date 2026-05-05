@@ -10,7 +10,7 @@ namespace DEPI.Domain.Entities.Recruitment;
 
 public class Job : AuditableEntity
 {
-    public string OwnerId { get; set; } = string.Empty;
+    public Guid OwnerId { get; set; }
     public Guid CompanyId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
@@ -66,7 +66,7 @@ public class JobCategory : AuditableEntity
 public class JobApplication : AuditableEntity
 {
     public Guid JobId { get; set; }
-    public string ApplicantId { get; set; } = string.Empty;
+    public Guid ApplicantId { get; set; }
     public string CoverLetter { get; set; } = string.Empty;
     public string ProposedRate { get; set; } = string.Empty;
     public string ProposedTimeline { get; set; } = string.Empty;

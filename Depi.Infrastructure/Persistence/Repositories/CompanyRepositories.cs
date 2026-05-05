@@ -8,7 +8,7 @@ public class CompanyRepository : Repository<Company>, ICompanyRepository
 {
     public CompanyRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<Company?> GetByOwnerIdAsync(string ownerId)
+    public async Task<Company?> GetByOwnerIdAsync(Guid ownerId)
     {
         return await _dbSet.FirstOrDefaultAsync(c => c.OwnerId == ownerId);
     }
@@ -38,17 +38,17 @@ public class CompanyMemberRepository : Repository<CompanyMember>, ICompanyMember
         return await _dbSet.Where(m => m.CompanyId == companyId).ToListAsync();
     }
 
-    public async Task<List<CompanyMember>> GetByUserIdAsync(string userId)
+    public async Task<List<CompanyMember>> GetByUserIdAsync(Guid userId)
     {
         return await _dbSet.Where(m => m.UserId == userId).ToListAsync();
     }
 
-    public async Task<CompanyMember?> GetMemberAsync(Guid companyId, string userId)
+    public async Task<CompanyMember?> GetMemberAsync(Guid companyId, Guid userId)
     {
         return await _dbSet.FirstOrDefaultAsync(m => m.CompanyId == companyId && m.UserId == userId);
     }
 
-    public async Task<bool> IsMemberAsync(Guid companyId, string userId)
+    public async Task<bool> IsMemberAsync(Guid companyId, Guid userId)
     {
         return await _dbSet.AnyAsync(m => m.CompanyId == companyId && m.UserId == userId);
     }
@@ -78,12 +78,12 @@ public class CompanyFollowerRepository : Repository<CompanyFollower>, ICompanyFo
         return await _dbSet.Where(f => f.CompanyId == companyId).ToListAsync();
     }
 
-    public async Task<List<CompanyFollower>> GetByUserIdAsync(string userId)
+    public async Task<List<CompanyFollower>> GetByUserIdAsync(Guid userId)
     {
         return await _dbSet.Where(f => f.UserId == userId).ToListAsync();
     }
 
-    public async Task<bool> IsFollowingAsync(Guid companyId, string userId)
+    public async Task<bool> IsFollowingAsync(Guid companyId, Guid userId)
     {
         return await _dbSet.AnyAsync(f => f.CompanyId == companyId && f.UserId == userId);
     }

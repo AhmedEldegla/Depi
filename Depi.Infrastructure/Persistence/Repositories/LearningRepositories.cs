@@ -13,7 +13,7 @@ public class CourseRepository : Repository<Course>, ICourseRepository
         return await _dbSet.Where(c => c.IsPublished).OrderByDescending(c => c.CreatedAt).ToListAsync();
     }
 
-    public async Task<List<Course>> GetByInstructorIdAsync(string instructorId)
+    public async Task<List<Course>> GetByInstructorIdAsync(Guid instructorId)
     {
         return await _dbSet.Where(c => c.InstructorId == instructorId).ToListAsync();
     }
@@ -53,22 +53,22 @@ public class CourseEnrollmentRepository : Repository<CourseEnrollment>, ICourseE
 {
     public CourseEnrollmentRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<List<CourseEnrollment>> GetByStudentIdAsync(string studentId)
+    public async Task<List<CourseEnrollment>> GetByStudentIdAsync(Guid studentId)
     {
         return await _dbSet.Where(e => e.StudentId == studentId).ToListAsync();
     }
 
-    public async Task<List<CourseEnrollment>> GetActiveEnrollmentsAsync(string studentId)
+    public async Task<List<CourseEnrollment>> GetActiveEnrollmentsAsync(Guid studentId)
     {
         return await _dbSet.Where(e => e.StudentId == studentId && e.Status == EnrollmentStatus.Active).ToListAsync();
     }
 
-    public async Task<CourseEnrollment?> GetEnrollmentAsync(Guid courseId, string studentId)
+    public async Task<CourseEnrollment?> GetEnrollmentAsync(Guid courseId, Guid studentId)
     {
         return await _dbSet.FirstOrDefaultAsync(e => e.CourseId == courseId && e.StudentId == studentId);
     }
 
-    public async Task<bool> IsEnrolledAsync(Guid courseId, string studentId)
+    public async Task<bool> IsEnrolledAsync(Guid courseId, Guid studentId)
     {
         return await _dbSet.AnyAsync(e => e.CourseId == courseId && e.StudentId == studentId && e.Status == EnrollmentStatus.Active);
     }
@@ -103,9 +103,9 @@ public class CertificationRepository : Repository<Certification>, ICertification
 {
     public CertificationRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<List<Certification>> GetByUserIdAsync(string userId)
+    public async Task<List<Certification>> GetByUserIdAsync(Guid userId)
     {
-        return await _dbSet.Where(c => c.CreatedBy.ToString() == userId).ToListAsync();
+        return await _dbSet.Where(c => c.CreatedBy == userId).ToListAsync();
     }
 
     public async Task<List<Certification>> GetExpiringSoonAsync(int days)
@@ -129,7 +129,7 @@ public class CourseReviewRepository : Repository<CourseReview>, ICourseReviewRep
         return await _dbSet.Where(r => r.CourseId == courseId).OrderByDescending(r => r.CreatedAt).ToListAsync();
     }
 
-    public async Task<List<CourseReview>> GetByStudentIdAsync(string studentId)
+    public async Task<List<CourseReview>> GetByStudentIdAsync(Guid studentId)
     {
         return await _dbSet.Where(r => r.StudentId == studentId).ToListAsync();
     }
@@ -145,17 +145,17 @@ public class LessonProgressRepository : Repository<LessonProgress>, ILessonProgr
 {
     public LessonProgressRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<LessonProgress?> GetProgressAsync(Guid lessonId, string studentId)
+    public async Task<LessonProgress?> GetProgressAsync(Guid lessonId, Guid studentId)
     {
         return await _dbSet.FirstOrDefaultAsync(p => p.LessonId == lessonId && p.StudentId == studentId);
     }
 
-    public async Task<List<LessonProgress>> GetByEnrollmentAsync(Guid courseId, string studentId)
+    public async Task<List<LessonProgress>> GetByEnrollmentAsync(Guid courseId, Guid studentId)
     {
         return new List<LessonProgress>();
     }
 
-    public async Task<int> GetCompletedCountAsync(Guid courseId, string studentId)
+    public async Task<int> GetCompletedCountAsync(Guid courseId, Guid studentId)
     {
         return 0;
     }

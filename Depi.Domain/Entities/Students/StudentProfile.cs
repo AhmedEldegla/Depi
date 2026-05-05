@@ -5,7 +5,7 @@ namespace DEPI.Domain.Entities.Students;
 
 public class StudentProfile : AuditableEntity
 {
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public string PhoneNumber { get; set; } = string.Empty;
     public string Bio { get; set; } = string.Empty;
     public DateTime EnrollmentDate { get; set; }
@@ -21,7 +21,7 @@ public class StudentProfile : AuditableEntity
     public bool HasCompletedSkillsAssessment { get; set; }
     public decimal ReadinessScore { get; set; }
     public bool IsReadyForMarket { get; set; }
-    public string? AssignedCoachId { get; set; }
+    public Guid? AssignedCoachId { get; set; }
     public DateTime? CoachAssignedAt { get; set; }
     public Guid? FirstProjectId { get; set; }
     public DateTime? FirstProjectAt { get; set; }
@@ -56,7 +56,7 @@ public class StudentProfile : AuditableEntity
         if (CompletedSteps >= TotalSteps) Status = StudentStatus.Graduated;
     }
 
-    public void AssignCoach(string coachId)
+    public void AssignCoach(Guid coachId)
     {
         AssignedCoachId = coachId;
         CoachAssignedAt = DateTime.UtcNow;

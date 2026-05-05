@@ -19,7 +19,7 @@ public class ConnectEarningRule : Entity
 
 public class ConnectEarning : AuditableEntity
 {
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public Guid RuleId { get; set; }
     public int ConnectsEarned { get; set; }
     public string TriggerType { get; set; } = string.Empty;

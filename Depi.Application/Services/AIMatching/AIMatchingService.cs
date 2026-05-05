@@ -64,12 +64,12 @@ public class AIMatchingService : IAIMatchingService
             throw new ArgumentException("Project not found", nameof(projectId));
 
         var freelancers = await _freelancerProfileRepository.GetAllAsync();
-        var results = new List<(string FreelancerId, decimal Score)>();
+        var results = new List<(Guid FreelancerId, decimal Score)>();
 
         foreach (var freelancer in freelancers)
         {
-            var score = await CalculateProjectMatchScoreAsync(projectId, freelancer.UserId.ToString());
-            results.Add((freelancer.UserId.ToString(), score));
+            var score = await CalculateProjectMatchScoreAsync(projectId, freelancer.UserId);
+            results.Add((freelancer.UserId, score));
         }
 
         results = results.OrderByDescending(x => x.Score).ToList();
@@ -90,12 +90,12 @@ public class AIMatchingService : IAIMatchingService
             throw new ArgumentException("Job not found", nameof(jobId));
 
         var freelancers = await _freelancerProfileRepository.GetAllAsync();
-        var results = new List<(string FreelancerId, decimal Score)>();
+        var results = new List<(Guid FreelancerId, decimal Score)>();
 
         foreach (var freelancer in freelancers)
         {
-            var score = await CalculateJobMatchScoreAsync(jobId, freelancer.UserId.ToString());
-            results.Add((freelancer.UserId.ToString(), score));
+            var score = await CalculateJobMatchScoreAsync(jobId, freelancer.UserId);
+            results.Add((freelancer.UserId, score));
         }
 
         results = results.OrderByDescending(x => x.Score).ToList();
@@ -120,18 +120,18 @@ public class AIMatchingService : IAIMatchingService
 
         foreach (var freelancer in freelancers)
         {
-            var score = await CalculateProjectMatchScoreAsync(projectId, freelancer.UserId.ToString());
+            var score = await CalculateProjectMatchScoreAsync(projectId, freelancer.UserId);
             results.Add(new ProjectMatchResult
             {
                 ProjectId = projectId,
-                FreelancerId = freelancer.UserId.ToString(),
+                FreelancerId = freelancer.UserId,
                 OverallScore = score,
-                SkillScore = await CalculateSkillScoreAsync(projectId, freelancer.UserId.ToString()),
-                ExperienceScore = await CalculateExperienceScoreAsync(freelancer.UserId.ToString()),
-                BudgetScore = await CalculateBudgetScoreAsync(projectId, freelancer.UserId.ToString()),
-                AvailabilityScore = await CalculateAvailabilityScoreAsync(freelancer.UserId.ToString()),
-                ReputationScore = await CalculateReputationScoreAsync(freelancer.UserId.ToString()),
-                AIReasoning = await GenerateProjectMatchReasoningAsync(projectId, freelancer.UserId.ToString(), score)
+                SkillScore = await CalculateSkillScoreAsync(projectId, freelancer.UserId),
+                ExperienceScore = await CalculateExperienceScoreAsync(freelancer.UserId),
+                BudgetScore = await CalculateBudgetScoreAsync(projectId, freelancer.UserId),
+                AvailabilityScore = await CalculateAvailabilityScoreAsync(freelancer.UserId),
+                ReputationScore = await CalculateReputationScoreAsync(freelancer.UserId),
+                AIReasoning = await GenerateProjectMatchReasoningAsync(projectId, freelancer.UserId, score)
             });
         }
 
@@ -152,17 +152,17 @@ public class AIMatchingService : IAIMatchingService
 
         foreach (var freelancer in freelancers)
         {
-            var score = await CalculateJobMatchScoreAsync(jobId, freelancer.UserId.ToString());
+            var score = await CalculateJobMatchScoreAsync(jobId, freelancer.UserId);
             results.Add(new JobMatchResult
             {
                 JobId = jobId,
-                FreelancerId = freelancer.UserId.ToString(),
+                FreelancerId = freelancer.UserId,
                 OverallScore = score,
-                SkillScore = await CalculateSkillScoreForJobAsync(jobId, freelancer.UserId.ToString()),
-                ExperienceScore = await CalculateExperienceScoreAsync(freelancer.UserId.ToString()),
-                SalaryScore = await CalculateSalaryMatchScoreAsync(jobId, freelancer.UserId.ToString()),
-                LocationScore = await CalculateLocationScoreAsync(jobId, freelancer.UserId.ToString()),
-                AIReasoning = await GenerateJobMatchReasoningAsync(jobId, freelancer.UserId.ToString(), score)
+                SkillScore = await CalculateSkillScoreForJobAsync(jobId, freelancer.UserId),
+                ExperienceScore = await CalculateExperienceScoreAsync(freelancer.UserId),
+                SalaryScore = await CalculateSalaryMatchScoreAsync(jobId, freelancer.UserId),
+                LocationScore = await CalculateLocationScoreAsync(jobId, freelancer.UserId),
+                AIReasoning = await GenerateJobMatchReasoningAsync(jobId, freelancer.UserId, score)
             });
         }
 
@@ -172,7 +172,7 @@ public class AIMatchingService : IAIMatchingService
             .ToList();
     }
 
-    public async Task<decimal> CalculateProjectMatchScoreAsync(Guid projectId, string freelancerId)
+    public async Task<decimal> CalculateProjectMatchScoreAsync(Guid projectId, Guid freelancerId)
     {
         var skillScore = await CalculateSkillScoreAsync(projectId, freelancerId);
         var experienceScore = await CalculateExperienceScoreAsync(freelancerId);
@@ -189,7 +189,7 @@ public class AIMatchingService : IAIMatchingService
                (reputationScore * weights.Reputation);
     }
 
-    public async Task<decimal> CalculateJobMatchScoreAsync(Guid jobId, string freelancerId)
+    public async Task<decimal> CalculateJobMatchScoreAsync(Guid jobId, Guid freelancerId)
     {
         var skillScore = await CalculateSkillScoreForJobAsync(jobId, freelancerId);
         var experienceScore = await CalculateExperienceScoreAsync(freelancerId);
@@ -206,7 +206,7 @@ public class AIMatchingService : IAIMatchingService
                (reputationScore * weights.Reputation);
     }
 
-    private async Task<decimal> CalculateSkillScoreAsync(Guid projectId, string freelancerId)
+    private async Task<decimal> CalculateSkillScoreAsync(Guid projectId, Guid freelancerId)
     {
         var project = await _projectRepository.GetByIdAsync(projectId);
         if (project == null) return 0;
@@ -229,7 +229,7 @@ public class AIMatchingService : IAIMatchingService
         return matchingSkills > 0 ? (decimal)matchingSkills / projectSkills.Count : 0;
     }
 
-    private async Task<decimal> CalculateSkillScoreForJobAsync(Guid jobId, string freelancerId)
+    private async Task<decimal> CalculateSkillScoreForJobAsync(Guid jobId, Guid freelancerId)
     {
         var job = await _jobRepository.GetByIdAsync(jobId);
         if (job == null) return 0;
@@ -252,7 +252,7 @@ public class AIMatchingService : IAIMatchingService
         return matchingSkills > 0 ? (decimal)matchingSkills / jobSkills.Count : 0;
     }
 
-    private async Task<decimal> CalculateExperienceScoreAsync(string freelancerId)
+    private async Task<decimal> CalculateExperienceScoreAsync(Guid freelancerId)
     {
         var profile = await _freelancerProfileRepository.GetByUserIdAsync(freelancerId);
         if (profile == null) return 0.5m;
@@ -268,7 +268,7 @@ public class AIMatchingService : IAIMatchingService
         };
     }
 
-    private async Task<decimal> CalculateBudgetScoreAsync(Guid projectId, string freelancerId)
+    private async Task<decimal> CalculateBudgetScoreAsync(Guid projectId, Guid freelancerId)
     {
         var project = await _projectRepository.GetByIdAsync(projectId);
         if (project == null) return 0.5m;
@@ -283,7 +283,7 @@ public class AIMatchingService : IAIMatchingService
         return expectedBudget <= projectBudget ? 1.0m : 0.5m;
     }
 
-    private async Task<decimal> CalculateSalaryMatchScoreAsync(Guid jobId, string freelancerId)
+    private async Task<decimal> CalculateSalaryMatchScoreAsync(Guid jobId, Guid freelancerId)
     {
         var job = await _jobRepository.GetByIdAsync(jobId);
         if (job == null) return 0.5m;
@@ -298,7 +298,7 @@ public class AIMatchingService : IAIMatchingService
         return expectedSalary >= jobSalaryMin && expectedSalary <= jobSalaryMax ? 1.0m : 0.5m;
     }
 
-    private async Task<decimal> CalculateLocationScoreAsync(Guid jobId, string freelancerId)
+    private async Task<decimal> CalculateLocationScoreAsync(Guid jobId, Guid freelancerId)
     {
         var job = await _jobRepository.GetByIdAsync(jobId);
         if (job == null) return 0.5m;
@@ -316,7 +316,7 @@ public class AIMatchingService : IAIMatchingService
             : jobLocation.Contains(profileLocation) || profileLocation.Contains(jobLocation) ? 1.0m : 0.3m;
     }
 
-    private async Task<decimal> CalculateAvailabilityScoreAsync(string freelancerId)
+    private async Task<decimal> CalculateAvailabilityScoreAsync(Guid freelancerId)
     {
         var profile = await _freelancerProfileRepository.GetByUserIdAsync(freelancerId);
         if (profile == null) return 0.5m;
@@ -324,10 +324,9 @@ public class AIMatchingService : IAIMatchingService
         return profile.IsAvailable ? 1.0m : 0.3m;
     }
 
-    private async Task<decimal> CalculateReputationScoreAsync(string freelancerId)
+    private async Task<decimal> CalculateReputationScoreAsync(Guid freelancerId)
     {
-        if (!Guid.TryParse(freelancerId, out var freelancerGuid)) return 0.5m;
-        var reviews = await _reviewRepository.GetByRevieweeIdAsync(freelancerGuid);
+        var reviews = await _reviewRepository.GetByRevieweeIdAsync(freelancerId);
         if (!reviews.Any()) return 0.5m;
 
         var avgRating = reviews.Average(r => r.Rating);
@@ -347,14 +346,12 @@ public class AIMatchingService : IAIMatchingService
         );
     }
 
-    private async Task<string> GenerateProjectMatchReasoningAsync(Guid projectId, string freelancerId, decimal score)
+    private async Task<string> GenerateProjectMatchReasoningAsync(Guid projectId, Guid freelancerId, decimal score)
     {
         var project = await _projectRepository.GetByIdAsync(projectId);
         var profile = await _freelancerProfileRepository.GetByUserIdAsync(freelancerId);
         var freelancerSkills = await _freelancerSkillRepository.GetByFreelancerIdAsync(freelancerId);
-        var reviews = Guid.TryParse(freelancerId, out var freelancerGuid) 
-            ? await _reviewRepository.GetByRevieweeIdAsync(freelancerGuid) 
-            : new List<DEPI.Domain.Entities.Reviews.Review>();
+        var reviews = await _reviewRepository.GetByRevieweeIdAsync(freelancerId);
 
         var reasoning = $"Freelancer matches project with {score:P0} compatibility. ";
         
@@ -378,7 +375,7 @@ public class AIMatchingService : IAIMatchingService
         return reasoning;
     }
 
-    private async Task<string> GenerateJobMatchReasoningAsync(Guid jobId, string freelancerId, decimal score)
+    private async Task<string> GenerateJobMatchReasoningAsync(Guid jobId, Guid freelancerId, decimal score)
     {
         var job = await _jobRepository.GetByIdAsync(jobId);
         var profile = await _freelancerProfileRepository.GetByUserIdAsync(freelancerId);

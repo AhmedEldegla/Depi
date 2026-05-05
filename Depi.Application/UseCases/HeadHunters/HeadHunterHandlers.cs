@@ -12,7 +12,7 @@ public class TalentRecommendationResponse { public Guid Id { get; set; } public 
 
 public record CreateHeadHunterRequest(string Specialization, string Bio);
 public record CreateAssignmentRequest(string Requirements, string? ProjectId, string? JobId, DateTime? ExpiresAt);
-public record SubmitTalentRequest(Guid AssignmentId, string RecommendedUserId, string Reason, string AIAnalysis, decimal MatchScore, decimal ProfileScore, decimal SkillsScore, decimal ExperienceScore);
+public record SubmitTalentRequest(Guid AssignmentId, Guid RecommendedUserId, string Reason, string AIAnalysis, decimal MatchScore, decimal ProfileScore, decimal SkillsScore, decimal ExperienceScore);
 public record ReviewTalentRequest(Guid RecommendationId, bool IsAccepted, string? Feedback);
 
 public record GetHeadHuntersQuery(string? Specialization) : IRequest<List<HeadHunterResponse>>;
@@ -45,9 +45,9 @@ public class CreateHeadHunterCommandHandler : IRequestHandler<CreateHeadHunterCo
     public CreateHeadHunterCommandHandler(IHeadHunterRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<HeadHunterResponse> Handle(CreateHeadHunterCommand r, CancellationToken ct)
     {
-        var existing = await _repo.GetByUserIdAsync(r.UserId.ToString());
+        var existing = await _repo.GetByUserIdAsync(r.UserId);
         if (existing != null) throw new InvalidOperationException(Errors.AlreadyExists("HeadHunter"));
-        var hunter = new HeadHunter { UserId = r.UserId.ToString(), Specialization = r.Request.Specialization, Bio = r.Request.Bio, Status = HeadHunterStatus.Active, CommissionRate = 0.05m, LastActiveAt = DateTime.UtcNow };
+        var hunter = new HeadHunter { UserId = r.UserId, Specialization = r.Request.Specialization, Bio = r.Request.Bio, Status = HeadHunterStatus.Active, CommissionRate = 0.05m, LastActiveAt = DateTime.UtcNow };
         await _repo.AddAsync(hunter, ct);
         return _mapper.Map<HeadHunterResponse>(hunter);
     }
@@ -78,7 +78,7 @@ public class GetClientAssignmentsQueryHandler : IRequestHandler<GetClientAssignm
 {
     private readonly IHeadHunterAssignmentRepository _repo; private readonly IMapper _mapper;
     public GetClientAssignmentsQueryHandler(IHeadHunterAssignmentRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
-    public async Task<List<AssignmentResponse>> Handle(GetClientAssignmentsQuery r, CancellationToken ct) => _mapper.Map<List<AssignmentResponse>>(await _repo.GetByClientIdAsync(r.ClientId.ToString()));
+    public async Task<List<AssignmentResponse>> Handle(GetClientAssignmentsQuery r, CancellationToken ct) => _mapper.Map<List<AssignmentResponse>>(await _repo.GetByClientIdAsync(r.ClientId));
 }
 
 public class SubmitTalentCommandHandler : IRequestHandler<SubmitTalentCommand, TalentRecommendationResponse>

@@ -19,18 +19,18 @@ public class ConnectEarningRepository : Repository<ConnectEarning>, IConnectEarn
 {
     public ConnectEarningRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<List<ConnectEarning>> GetByUserIdAsync(string userId)
+    public async Task<List<ConnectEarning>> GetByUserIdAsync(Guid userId)
         => await _dbSet.Where(e => e.UserId == userId).OrderByDescending(e => e.EarnedAt).ToListAsync();
 
-    public async Task<int> GetTotalEarnedAsync(string userId)
+    public async Task<int> GetTotalEarnedAsync(Guid userId)
         => await _dbSet.Where(e => e.UserId == userId).SumAsync(e => e.ConnectsEarned);
 
-    public async Task<int> GetTodayEarnedAsync(string userId, EarningTrigger trigger)
+    public async Task<int> GetTodayEarnedAsync(Guid userId, EarningTrigger trigger)
     {
         var today = DateTime.UtcNow.Date;
         return await _dbSet.Where(e => e.UserId == userId && e.TriggerType == trigger.ToString() && e.EarnedAt >= today).SumAsync(e => e.ConnectsEarned);
     }
 
-    public async Task<int> GetEarnedInPeriodAsync(string userId, DateTime since)
+    public async Task<int> GetEarnedInPeriodAsync(Guid userId, DateTime since)
         => await _dbSet.Where(e => e.UserId == userId && e.EarnedAt >= since).SumAsync(e => e.ConnectsEarned);
 }

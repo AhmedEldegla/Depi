@@ -22,7 +22,7 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobResp
     public CreateJobCommandHandler(IJobRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<JobResponse> Handle(CreateJobCommand r, CancellationToken ct)
     {
-        var job = new Job { OwnerId = r.OwnerId.ToString(), CompanyId = r.Request.CompanyId ?? Guid.Empty, Title = r.Request.Title, Description = r.Request.Description, Type = r.Request.Type, Status = JobStatus.Active, BudgetMin = r.Request.BudgetMin, BudgetMax = r.Request.BudgetMax, BudgetType = r.Request.BudgetType, ExperienceLevel = r.Request.ExperienceLevel, Location = r.Request.Location, IsRemote = r.Request.IsRemote, SkillsRequired = r.Request.SkillsRequired, ExpiresAt = r.Request.ExpiresAt };
+        var job = new Job { OwnerId = r.OwnerId, CompanyId = r.Request.CompanyId ?? Guid.Empty, Title = r.Request.Title, Description = r.Request.Description, Type = r.Request.Type, Status = JobStatus.Active, BudgetMin = r.Request.BudgetMin, BudgetMax = r.Request.BudgetMax, BudgetType = r.Request.BudgetType, ExperienceLevel = r.Request.ExperienceLevel, Location = r.Request.Location, IsRemote = r.Request.IsRemote, SkillsRequired = r.Request.SkillsRequired, ExpiresAt = r.Request.ExpiresAt };
         await _repo.AddAsync(job, ct);
         return _mapper.Map<JobResponse>(job);
     }
@@ -49,7 +49,7 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, JobApplic
     public async Task<JobApplicationResponse> Handle(ApplyJobCommand r, CancellationToken ct)
     {
         var job = await _jobRepo.GetByIdAsync(r.Request.JobId, ct) ?? throw new KeyNotFoundException(Errors.NotFound("Job"));
-        var application = new JobApplication { JobId = r.Request.JobId, ApplicantId = r.ApplicantId.ToString(), CoverLetter = r.Request.CoverLetter, ProposedRate = r.Request.ProposedRate, ProposedTimeline = r.Request.ProposedTimeline };
+        var application = new JobApplication { JobId = r.Request.JobId, ApplicantId = r.ApplicantId, CoverLetter = r.Request.CoverLetter, ProposedRate = r.Request.ProposedRate, ProposedTimeline = r.Request.ProposedTimeline };
         await _repo.AddAsync(application, ct);
         return _mapper.Map<JobApplicationResponse>(application);
     }

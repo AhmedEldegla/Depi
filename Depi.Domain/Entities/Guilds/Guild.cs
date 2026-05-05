@@ -10,7 +10,7 @@ public class Guild : AuditableEntity
     public string Description { get; set; } = string.Empty;
     public string Specialization { get; set; } = string.Empty;
     public string ImageUrl { get; set; } = string.Empty;
-    public string LeaderId { get; set; } = string.Empty;
+    public Guid LeaderId { get; set; }
     public GuildStatus Status { get; set; } = GuildStatus.Active;
     public int MemberCount { get; set; }
     public int CompletedProjects { get; set; }
@@ -40,7 +40,7 @@ public class Guild : AuditableEntity
 public class GuildMember : AuditableEntity
 {
     public Guid GuildId { get; set; }
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public string Role { get; set; } = "Member";
     public string Skills { get; set; } = string.Empty;
     public DateTime JoinedAt { get; set; } = DateTime.UtcNow;

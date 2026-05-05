@@ -28,13 +28,13 @@ public class GuildMemberRepository : Repository<GuildMember>, IGuildMemberReposi
     public async Task<List<GuildMember>> GetByGuildIdAsync(Guid guildId)
         => await _dbSet.Where(m => m.GuildId == guildId && m.IsActive).ToListAsync();
 
-    public async Task<List<GuildMember>> GetByUserIdAsync(string userId)
+    public async Task<List<GuildMember>> GetByUserIdAsync(Guid userId)
         => await _dbSet.Where(m => m.UserId == userId && m.IsActive).ToListAsync();
 
-    public async Task<GuildMember?> GetMembershipAsync(Guid guildId, string userId)
+    public async Task<GuildMember?> GetMembershipAsync(Guid guildId, Guid userId)
         => await _dbSet.FirstOrDefaultAsync(m => m.GuildId == guildId && m.UserId == userId);
 
-    public async Task<bool> IsMemberAsync(Guid guildId, string userId)
+    public async Task<bool> IsMemberAsync(Guid guildId, Guid userId)
         => await _dbSet.AnyAsync(m => m.GuildId == guildId && m.UserId == userId && m.IsActive);
 }
 

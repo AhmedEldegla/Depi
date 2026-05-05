@@ -20,7 +20,7 @@ public class Language : Entity
 
 public class UserLanguage : Entity
 {
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public Guid LanguageId { get; set; }
     public ProficiencyLevel Proficiency { get; set; } = ProficiencyLevel.Native;
     public bool IsPrimary { get; set; }

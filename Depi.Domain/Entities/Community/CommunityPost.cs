@@ -8,7 +8,7 @@ namespace DEPI.Domain.Entities.Community;
 
 public class CommunityPost : AuditableEntity
 {
-    public string AuthorId { get; set; } = string.Empty;
+    public Guid AuthorId { get; set; }
     public Guid? CompanyId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
@@ -38,7 +38,7 @@ public class CommunityPost : AuditableEntity
 public class PostComment : AuditableEntity
 {
     public Guid PostId { get; set; }
-    public string AuthorId { get; set; } = string.Empty;
+    public Guid AuthorId { get; set; }
     public Guid? ParentCommentId { get; set; }
     public string Content { get; set; } = string.Empty;
     public int LikesCount { get; set; }
@@ -56,7 +56,7 @@ public class PostComment : AuditableEntity
 public class PostLike : AuditableEntity
 {
     public Guid PostId { get; set; }
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
 
     public virtual CommunityPost Post { get; set; } = null!;
     public virtual User User { get; set; } = null!;
@@ -65,7 +65,7 @@ public class PostLike : AuditableEntity
 public class PostBookmark : AuditableEntity
 {
     public Guid PostId { get; set; }
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
 
     public virtual CommunityPost Post { get; set; } = null!;
     public virtual User User { get; set; } = null!;
@@ -74,7 +74,7 @@ public class PostBookmark : AuditableEntity
 public class PostShare : AuditableEntity
 {
     public Guid PostId { get; set; }
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public string Platform { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
 
@@ -84,7 +84,7 @@ public class PostShare : AuditableEntity
 
 public class ForumThread : AuditableEntity
 {
-    public string AuthorId { get; set; } = string.Empty;
+    public Guid AuthorId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
     public Guid CategoryId { get; set; }
@@ -119,7 +119,7 @@ public class ForumCategory : AuditableEntity
 public class ForumReply : AuditableEntity
 {
     public Guid ThreadId { get; set; }
-    public string AuthorId { get; set; } = string.Empty;
+    public Guid AuthorId { get; set; }
     public string Content { get; set; } = string.Empty;
     public bool IsAcceptedAnswer { get; set; }
     public bool IsEdited { get; set; }

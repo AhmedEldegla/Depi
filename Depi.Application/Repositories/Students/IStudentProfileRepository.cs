@@ -5,10 +5,10 @@ namespace DEPI.Application.Repositories.Students;
 
 public interface IStudentProfileRepository : IRepository<StudentProfile>
 {
-    Task<StudentProfile?> GetByUserIdAsync(string userId);
+    Task<StudentProfile?> GetByUserIdAsync(Guid userId);
     Task<List<StudentProfile>> GetActiveAsync();
     Task<List<StudentProfile>> GetReadyForMarketAsync();
-    Task<List<StudentProfile>> GetByCoachIdAsync(string coachId);
+    Task<List<StudentProfile>> GetByCoachIdAsync(Guid coachId);
     Task<List<StudentProfile>> GetByStatusAsync(StudentStatus status);
     Task<List<StudentProfile>> GetTopStudentsAsync(int count);
 }

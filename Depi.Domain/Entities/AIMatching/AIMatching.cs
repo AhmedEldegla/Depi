@@ -9,7 +9,7 @@ namespace DEPI.Domain.Entities.AIMatching;
 public class SkillMatch : AuditableEntity
 {
     public Guid ProjectId { get; set; }
-    public string FreelancerId { get; set; } = string.Empty;
+    public Guid FreelancerId { get; set; }
     public Guid SkillId { get; set; }
     public int RequiredLevel { get; set; }
     public int FreelancerLevel { get; set; }
@@ -24,7 +24,7 @@ public class SkillMatch : AuditableEntity
 public class ProjectMatch : AuditableEntity
 {
     public Guid ProjectId { get; set; }
-    public string FreelancerId { get; set; } = string.Empty;
+    public Guid FreelancerId { get; set; }
     public decimal OverallScore { get; set; }
     public decimal SkillScore { get; set; }
     public decimal ExperienceScore { get; set; }
@@ -45,7 +45,7 @@ public class ProjectMatch : AuditableEntity
 public class JobMatch : AuditableEntity
 {
     public Guid JobId { get; set; }
-    public string FreelancerId { get; set; } = string.Empty;
+    public Guid FreelancerId { get; set; }
     public decimal OverallScore { get; set; }
     public decimal SkillScore { get; set; }
     public decimal ExperienceScore { get; set; }
@@ -63,7 +63,7 @@ public class JobMatch : AuditableEntity
 
 public class FreelancerScore : AuditableEntity
 {
-    public string FreelancerId { get; set; } = string.Empty;
+    public Guid FreelancerId { get; set; }
     public decimal OverallScore { get; set; }
     public decimal SkillScore { get; set; }
     public decimal ProjectSuccessScore { get; set; }
@@ -135,7 +135,7 @@ public class ScoringCriteria : AuditableEntity
 
 public class Recommendation : AuditableEntity
 {
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public RecommendationType Type { get; set; }
     public string TargetType { get; set; } = string.Empty;
     public Guid TargetId { get; set; }
@@ -153,7 +153,7 @@ public class Recommendation : AuditableEntity
 
 public class AILog : AuditableEntity
 {
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public string Action { get; set; } = string.Empty;
     public string Input { get; set; } = string.Empty;
     public string Output { get; set; } = string.Empty;

@@ -7,7 +7,7 @@ namespace DEPI.Domain.Entities.HeadHunters;
 
 public class HeadHunter : AuditableEntity
 {
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public string Specialization { get; set; } = string.Empty;
     public string Bio { get; set; } = string.Empty;
     public HeadHunterStatus Status { get; set; } = HeadHunterStatus.Active;
@@ -102,7 +102,7 @@ public class HeadHunterAssignment : AuditableEntity
 public class TalentRecommendation : AuditableEntity
 {
     public Guid AssignmentId { get; set; }
-    public string RecommendedUserId { get; set; } = string.Empty;
+    public Guid RecommendedUserId { get; set; }
     public string Reason { get; set; } = string.Empty;
     public string AIAnalysis { get; set; } = string.Empty;
     public decimal MatchScore { get; set; }

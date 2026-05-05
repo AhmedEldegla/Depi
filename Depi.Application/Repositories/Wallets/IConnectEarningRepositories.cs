@@ -11,8 +11,8 @@ public interface IConnectEarningRuleRepository : IRepository<ConnectEarningRule>
 
 public interface IConnectEarningRepository : IRepository<ConnectEarning>
 {
-    Task<List<ConnectEarning>> GetByUserIdAsync(string userId);
-    Task<int> GetTotalEarnedAsync(string userId);
-    Task<int> GetTodayEarnedAsync(string userId, EarningTrigger trigger);
-    Task<int> GetEarnedInPeriodAsync(string userId, DateTime since);
+    Task<List<ConnectEarning>> GetByUserIdAsync(Guid userId);
+    Task<int> GetTotalEarnedAsync(Guid userId);
+    Task<int> GetTodayEarnedAsync(Guid userId, EarningTrigger trigger);
+    Task<int> GetEarnedInPeriodAsync(Guid userId, DateTime since);
 }

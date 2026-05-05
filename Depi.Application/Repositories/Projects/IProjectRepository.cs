@@ -7,7 +7,7 @@ public interface IProjectRepository : IRepository<Project>
 {
     Task<Project?> GetByIdAsync(Guid id);
     Task<List<Project>> GetAllAsync();
-    Task<List<Project>> GetByOwnerIdAsync(string ownerId);
+    Task<List<Project>> GetByOwnerIdAsync(Guid ownerId);
     Task<List<Project>> GetActiveProjectsAsync();
     Task<List<Project>> SearchProjectsAsync(string searchTerm);
     Task<List<Project>> GetByCategoryAsync(Guid categoryId);

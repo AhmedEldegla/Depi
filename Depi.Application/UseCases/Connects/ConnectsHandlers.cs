@@ -79,7 +79,7 @@ public class GetConnectBalanceQueryHandler : IRequestHandler<GetConnectBalanceQu
 
     public async Task<ConnectBalanceResponse> Handle(GetConnectBalanceQuery r, CancellationToken ct)
     {
-        var userId = r.UserId.ToString();
+        var userId = r.UserId;
         var totalUsed = await _usageRepo.GetTotalUsedAsync(userId);
         var totalSpent = await _purchaseRepo.GetTotalSpentAsync(userId);
 
@@ -101,7 +101,7 @@ public class GetConnectHistoryQueryHandler : IRequestHandler<GetConnectHistoryQu
 
     public async Task<List<ConnectUsageResponse>> Handle(GetConnectHistoryQuery r, CancellationToken ct)
     {
-        var usages = await _repo.GetByUserIdAsync(r.UserId.ToString());
+        var usages = await _repo.GetByUserIdAsync(r.UserId);
         return usages.Select(u => new ConnectUsageResponse
         {
             Id = u.Id, ConnectsUsed = u.ConnectsUsed, UsageType = u.UsageType,
@@ -125,7 +125,7 @@ public class PurchaseConnectsCommandHandler : IRequestHandler<PurchaseConnectsCo
 
         var purchase = new ConnectPurchase
         {
-            UserId = r.UserId.ToString(),
+            UserId = r.UserId,
             ConnectId = pack.Id,
             Quantity = 1,
             FreeConnects = pack.IsBonus ? pack.Amount : 0,

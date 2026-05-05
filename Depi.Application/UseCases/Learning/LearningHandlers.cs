@@ -27,7 +27,7 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, C
     public CreateCourseCommandHandler(ICourseRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<CourseResponse> Handle(CreateCourseCommand r, CancellationToken ct)
     {
-        var course = new Course { InstructorId = r.InstructorId.ToString(), Title = r.Request.Title, Description = r.Request.Description, ThumbnailUrl = r.Request.ThumbnailUrl ?? "", VideoUrl = r.Request.VideoUrl ?? "", Level = r.Request.Level, Status = CourseStatus.Published, Price = r.Request.Price, IsFree = r.Request.IsFree, Category = r.Request.Category ?? "", Tags = r.Request.Tags ?? "" };
+        var course = new Course { InstructorId = r.InstructorId, Title = r.Request.Title, Description = r.Request.Description, ThumbnailUrl = r.Request.ThumbnailUrl ?? "", VideoUrl = r.Request.VideoUrl ?? "", Level = r.Request.Level, Status = CourseStatus.Published, Price = r.Request.Price, IsFree = r.Request.IsFree, Category = r.Request.Category ?? "", Tags = r.Request.Tags ?? "" };
         await _repo.AddAsync(course, ct);
         return _mapper.Map<CourseResponse>(course);
     }
@@ -56,9 +56,9 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, G
     public EnrollCourseCommandHandler(ICourseEnrollmentRepository repo) => _repo = repo;
     public async Task<Guid> Handle(EnrollCourseCommand r, CancellationToken ct)
     {
-        var exists = await _repo.IsEnrolledAsync(r.Request.CourseId, r.StudentId.ToString());
+        var exists = await _repo.IsEnrolledAsync(r.Request.CourseId, r.StudentId);
         if (exists) throw new InvalidOperationException(Errors.AlreadyExists("Enrollment"));
-        var enrollment = new CourseEnrollment { CourseId = r.Request.CourseId, StudentId = r.StudentId.ToString(), Status = EnrollmentStatus.Active };
+        var enrollment = new CourseEnrollment { CourseId = r.Request.CourseId, StudentId = r.StudentId, Status = EnrollmentStatus.Active };
         await _repo.AddAsync(enrollment, ct);
         return enrollment.Id;
     }

@@ -27,7 +27,7 @@ public class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, Commu
 
     public async Task<CommunityPostResponse> Handle(CreatePostCommand r, CancellationToken ct)
     {
-        var post = new CommunityPost { AuthorId = r.AuthorId.ToString(), Title = r.Request.Title, Content = r.Request.Content, ImageUrl = r.Request.ImageUrl ?? "", Type = r.Request.Type, Status = PostStatus.Published, Category = r.Request.Category ?? "", Tags = r.Request.Tags ?? "" };
+        var post = new CommunityPost { AuthorId = r.AuthorId, Title = r.Request.Title, Content = r.Request.Content, ImageUrl = r.Request.ImageUrl ?? "", Type = r.Request.Type, Status = PostStatus.Published, Category = r.Request.Category ?? "", Tags = r.Request.Tags ?? "" };
         await _repo.AddAsync(post, ct);
         return _mapper.Map<CommunityPostResponse>(post);
     }
@@ -72,7 +72,7 @@ public class CreateForumThreadCommandHandler : IRequestHandler<CreateForumThread
     public CreateForumThreadCommandHandler(IForumThreadRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<ForumThreadResponse> Handle(CreateForumThreadCommand r, CancellationToken ct)
     {
-        var thread = new ForumThread { AuthorId = r.AuthorId.ToString(), Title = r.Request.Title, Content = r.Request.Content, CategoryId = r.Request.CategoryId, Status = ThreadStatus.Open };
+        var thread = new ForumThread { AuthorId = r.AuthorId, Title = r.Request.Title, Content = r.Request.Content, CategoryId = r.Request.CategoryId, Status = ThreadStatus.Open };
         await _repo.AddAsync(thread, ct);
         return _mapper.Map<ForumThreadResponse>(thread);
     }
@@ -84,7 +84,7 @@ public class CreateForumReplyCommandHandler : IRequestHandler<CreateForumReplyCo
     public CreateForumReplyCommandHandler(IForumReplyRepository repo) => _repo = repo;
     public async Task<Guid> Handle(CreateForumReplyCommand r, CancellationToken ct)
     {
-        var reply = new ForumReply { ThreadId = r.Request.ThreadId, AuthorId = r.AuthorId.ToString(), Content = r.Request.Content };
+        var reply = new ForumReply { ThreadId = r.Request.ThreadId, AuthorId = r.AuthorId, Content = r.Request.Content };
         await _repo.AddAsync(reply, ct);
         return reply.Id;
     }

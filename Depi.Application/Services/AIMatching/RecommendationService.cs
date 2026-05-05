@@ -49,7 +49,7 @@ public class RecommendationService : IRecommendationService
         _postRepository = postRepository;
     }
 
-    public async Task<List<RecommendationResult>> GetPersonalizedRecommendationsAsync(string userId)
+    public async Task<List<RecommendationResult>> GetPersonalizedRecommendationsAsync(Guid userId)
     {
         var allRecommendations = new List<RecommendationResult>();
 
@@ -63,7 +63,7 @@ public class RecommendationService : IRecommendationService
             .ToList();
     }
 
-    public async Task<List<RecommendationResult>> GetProjectRecommendationsForFreelancerAsync(string freelancerId)
+    public async Task<List<RecommendationResult>> GetProjectRecommendationsForFreelancerAsync(Guid freelancerId)
     {
         var profile = await _freelancerProfileRepository.GetByUserIdAsync(freelancerId);
         if (profile == null) return new List<RecommendationResult>();
@@ -96,7 +96,7 @@ public class RecommendationService : IRecommendationService
             .ToList();
     }
 
-    public async Task<List<RecommendationResult>> GetJobRecommendationsForFreelancerAsync(string freelancerId)
+    public async Task<List<RecommendationResult>> GetJobRecommendationsForFreelancerAsync(Guid freelancerId)
     {
         var profile = await _freelancerProfileRepository.GetByUserIdAsync(freelancerId);
         if (profile == null) return new List<RecommendationResult>();
@@ -129,7 +129,7 @@ public class RecommendationService : IRecommendationService
             .ToList();
     }
 
-    public async Task<List<RecommendationResult>> GetCourseRecommendationsForUserAsync(string userId)
+    public async Task<List<RecommendationResult>> GetCourseRecommendationsForUserAsync(Guid userId)
     {
         var profile = await _freelancerProfileRepository.GetByUserIdAsync(userId);
         if (profile == null) return new List<RecommendationResult>();
@@ -164,7 +164,7 @@ public class RecommendationService : IRecommendationService
 
     public async Task RecordRecommendationClickAsync(Guid recommendationId)
     {
-        var recommendations = await _recommendationRepository.GetByUserIdAsync(string.Empty);
+        var recommendations = await _recommendationRepository.GetByUserIdAsync(Guid.Empty);
         var recommendation = recommendations.FirstOrDefault(r => r.Id == recommendationId);
         
         if (recommendation != null)
@@ -175,14 +175,14 @@ public class RecommendationService : IRecommendationService
         }
     }
 
-    public async Task<decimal> GetRecommendationConfidenceAsync(string userId, DEPI.Domain.Entities.AIMatching.RecommendationType type)
+    public async Task<decimal> GetRecommendationConfidenceAsync(Guid userId, DEPI.Domain.Entities.AIMatching.RecommendationType type)
     {
         var recommendations = await _recommendationRepository.GetByTypeAsync(userId, type);
         
         if (!recommendations.Any()) return 0;
 
         var avgConfidence = recommendations.Average(r => r.ConfidenceScore);
-        var clickRate = recommendations.Count(r => r.IsClicked) / (decimal)recommendations.Count;
+        var clickRate = recommendations.Count(r => r.IsClicked) / (decimal)recommendations.Count();
 
         return (avgConfidence * 0.7m) + (clickRate * 0.3m);
     }

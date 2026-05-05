@@ -27,9 +27,9 @@ public class ProjectRepository : Repository<Project>, IProjectRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<Project>> GetByOwnerIdAsync(string ownerId, CancellationToken cancellationToken = default)
+    public async Task<List<Project>> GetByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken = default)
     {
-        var ownerGuid = Guid.TryParse(ownerId, out var guid) ? guid : Guid.Empty;
+        var ownerGuid = ownerId;
         return await _dbSet
             .Where(p => p.OwnerId == ownerGuid)
             .Include(p => p.Category)

@@ -19,15 +19,6 @@ public class UserProfileRepository : Repository<UserProfile>, IUserProfileReposi
             .FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
     }
 
-    public async Task<UserProfile?> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
-    {
-        if (Guid.TryParse(userId, out var guid))
-        {
-            return await GetByUserIdAsync(guid, cancellationToken);
-        }
-        return null;
-    }
-
     public async Task<IEnumerable<UserProfile>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _dbSet

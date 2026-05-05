@@ -8,7 +8,7 @@ public class StudentProfileRepository : Repository<StudentProfile>, IStudentProf
 {
     public StudentProfileRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<StudentProfile?> GetByUserIdAsync(string userId)
+    public async Task<StudentProfile?> GetByUserIdAsync(Guid userId)
         => await _dbSet.FirstOrDefaultAsync(s => s.UserId == userId);
 
     public async Task<List<StudentProfile>> GetActiveAsync()
@@ -17,7 +17,7 @@ public class StudentProfileRepository : Repository<StudentProfile>, IStudentProf
     public async Task<List<StudentProfile>> GetReadyForMarketAsync()
         => await _dbSet.Where(s => s.IsReadyForMarket).OrderByDescending(s => s.ReadinessScore).ToListAsync();
 
-    public async Task<List<StudentProfile>> GetByCoachIdAsync(string coachId)
+    public async Task<List<StudentProfile>> GetByCoachIdAsync(Guid coachId)
         => await _dbSet.Where(s => s.AssignedCoachId == coachId).OrderByDescending(s => s.ReadinessScore).ToListAsync();
 
     public async Task<List<StudentProfile>> GetByStatusAsync(StudentStatus status)

@@ -23,7 +23,7 @@ public class ConnectPurchaseRepository : Repository<ConnectPurchase>, IConnectPu
 {
     public ConnectPurchaseRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<List<ConnectPurchase>> GetByUserIdAsync(string userId)
+    public async Task<List<ConnectPurchase>> GetByUserIdAsync(Guid userId)
     {
         return await _dbSet.Where(p => p.UserId == userId).OrderByDescending(p => p.CreatedAt).ToListAsync();
     }
@@ -33,7 +33,7 @@ public class ConnectPurchaseRepository : Repository<ConnectPurchase>, IConnectPu
         return await _dbSet.Where(p => p.Status == PurchaseStatus.Pending).ToListAsync();
     }
 
-    public async Task<decimal> GetTotalSpentAsync(string userId)
+    public async Task<decimal> GetTotalSpentAsync(Guid userId)
     {
         return await _dbSet.Where(p => p.UserId == userId && p.Status == PurchaseStatus.Completed).SumAsync(p => p.AmountPaid);
     }
@@ -43,7 +43,7 @@ public class ConnectUsageRepository : Repository<ConnectUsage>, IConnectUsageRep
 {
     public ConnectUsageRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<List<ConnectUsage>> GetByUserIdAsync(string userId)
+    public async Task<List<ConnectUsage>> GetByUserIdAsync(Guid userId)
     {
         return await _dbSet.Where(u => u.UserId == userId).OrderByDescending(u => u.CreatedAt).ToListAsync();
     }
@@ -53,7 +53,7 @@ public class ConnectUsageRepository : Repository<ConnectUsage>, IConnectUsageRep
         return await _dbSet.Where(u => u.ProjectId == projectId).ToListAsync();
     }
 
-    public async Task<int> GetTotalUsedAsync(string userId)
+    public async Task<int> GetTotalUsedAsync(Guid userId)
     {
         return await _dbSet.Where(u => u.UserId == userId && !u.IsRefunded).SumAsync(u => u.ConnectsUsed);
     }
@@ -63,7 +63,7 @@ public class FreelancerSubscriptionRepository : Repository<FreelancerSubscriptio
 {
     public FreelancerSubscriptionRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<FreelancerSubscription?> GetActiveSubscriptionAsync(string userId)
+    public async Task<FreelancerSubscription?> GetActiveSubscriptionAsync(Guid userId)
     {
         return await _dbSet.FirstOrDefaultAsync(s => s.UserId == userId && s.Status == SubscriptionStatus.Active);
     }

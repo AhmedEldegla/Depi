@@ -16,6 +16,7 @@ using DEPI.Domain.Entities.Recruitment;
 using DEPI.Domain.Entities.Reviews;
 using DEPI.Domain.Entities.Shared;
 using DEPI.Domain.Entities.Students;
+using DEPI.Domain.Entities.Verifications;
 using DEPI.Domain.Entities.Wallets;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -96,6 +97,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
     public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
     public DbSet<ConnectEarningRule> ConnectEarningRules => Set<ConnectEarningRule>();
     public DbSet<ConnectEarning> ConnectEarnings => Set<ConnectEarning>();
+    public DbSet<IdentityVerification> IdentityVerifications => Set<IdentityVerification>();
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -109,7 +111,15 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, Guid,
         {
             relationship.DeleteBehavior = DeleteBehavior.Restrict;
         }
-        
+
+        foreach (var property in modelBuilder.Model.GetEntityTypes()
+            .SelectMany(t => t.GetProperties())
+            .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
+        {
+            property.SetPrecision(18);
+            property.SetScale(4);
+        }
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.ToTable("Users");

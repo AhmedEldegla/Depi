@@ -8,35 +8,35 @@ public interface IAIMatchingService
     Task<JobMatchResult> MatchFreelancersToJobAsync(Guid jobId);
     Task<List<ProjectMatchResult>> GetTopProjectMatchesAsync(Guid projectId, int count = 10);
     Task<List<JobMatchResult>> GetTopJobMatchesAsync(Guid jobId, int count = 10);
-    Task<decimal> CalculateProjectMatchScoreAsync(Guid projectId, string freelancerId);
-    Task<decimal> CalculateJobMatchScoreAsync(Guid jobId, string freelancerId);
+    Task<decimal> CalculateProjectMatchScoreAsync(Guid projectId, Guid freelancerId);
+    Task<decimal> CalculateJobMatchScoreAsync(Guid jobId, Guid freelancerId);
 }
 
 public interface IFreelancerScoringService
 {
-    Task<FreelancerScoreResult> CalculateFreelancerScoreAsync(string freelancerId);
-    Task<FreelancerScoreResult> GetOrCalculateScoreAsync(string freelancerId);
+    Task<FreelancerScoreResult> CalculateFreelancerScoreAsync(Guid freelancerId);
+    Task<FreelancerScoreResult> GetOrCalculateScoreAsync(Guid freelancerId);
     Task<List<FreelancerScoreResult>> GetTopScoredFreelancersAsync(int count = 100);
-    Task<Dictionary<string, decimal>> GetScoreBreakdownAsync(string freelancerId);
+    Task<Dictionary<string, decimal>> GetScoreBreakdownAsync(Guid freelancerId);
 }
 
 public interface IRecommendationService
 {
-    Task<List<RecommendationResult>> GetPersonalizedRecommendationsAsync(string userId);
-    Task<List<RecommendationResult>> GetProjectRecommendationsForFreelancerAsync(string freelancerId);
-    Task<List<RecommendationResult>> GetJobRecommendationsForFreelancerAsync(string freelancerId);
-    Task<List<RecommendationResult>> GetCourseRecommendationsForUserAsync(string userId);
+    Task<List<RecommendationResult>> GetPersonalizedRecommendationsAsync(Guid userId);
+    Task<List<RecommendationResult>> GetProjectRecommendationsForFreelancerAsync(Guid freelancerId);
+    Task<List<RecommendationResult>> GetJobRecommendationsForFreelancerAsync(Guid freelancerId);
+    Task<List<RecommendationResult>> GetCourseRecommendationsForUserAsync(Guid userId);
     Task RecordRecommendationClickAsync(Guid recommendationId);
-    Task<decimal> GetRecommendationConfidenceAsync(string userId, DEPI.Domain.Entities.AIMatching.RecommendationType type);
+    Task<decimal> GetRecommendationConfidenceAsync(Guid userId, DEPI.Domain.Entities.AIMatching.RecommendationType type);
 }
 
 public interface IAIAnalysisService
 {
     Task<string> AnalyzeProposalAsync(string coverLetter, Guid projectId);
-    Task<string> AnalyzeFreelancerProfileAsync(string freelancerId);
+    Task<string> AnalyzeFreelancerProfileAsync(Guid freelancerId);
     Task<string> GenerateProjectDescriptionAsync(string title, string category);
     Task<string> EvaluatePortfolioItemAsync(string description, List<string> skills);
-    Task<decimal> CalculateSkillProficiencyAsync(string freelancerId, Guid skillId);
+    Task<decimal> CalculateSkillProficiencyAsync(Guid freelancerId, Guid skillId);
     Task<string> GenerateMatchReasoningAsync(MatchContext context);
 }
 
@@ -51,7 +51,7 @@ public interface IAIModelConfigService
 public class ProjectMatchResult
 {
     public Guid ProjectId { get; set; }
-    public string FreelancerId { get; set; } = string.Empty;
+    public Guid FreelancerId { get; set; }
     public decimal OverallScore { get; set; }
     public decimal SkillScore { get; set; }
     public decimal ExperienceScore { get; set; }
@@ -65,7 +65,7 @@ public class ProjectMatchResult
 public class JobMatchResult
 {
     public Guid JobId { get; set; }
-    public string FreelancerId { get; set; } = string.Empty;
+    public Guid FreelancerId { get; set; }
     public decimal OverallScore { get; set; }
     public decimal SkillScore { get; set; }
     public decimal ExperienceScore { get; set; }
@@ -77,7 +77,7 @@ public class JobMatchResult
 
 public class FreelancerScoreResult
 {
-    public string FreelancerId { get; set; } = string.Empty;
+    public Guid FreelancerId { get; set; }
     public decimal OverallScore { get; set; }
     public decimal SkillScore { get; set; }
     public decimal ProjectSuccessScore { get; set; }
@@ -112,7 +112,7 @@ public class RecommendationResult
 public class MatchContext
 {
     public Guid ProjectId { get; set; }
-    public string FreelancerId { get; set; } = string.Empty;
+    public Guid FreelancerId { get; set; }
     public decimal OverallScore { get; set; }
     public decimal SkillScore { get; set; }
     public decimal ExperienceScore { get; set; }

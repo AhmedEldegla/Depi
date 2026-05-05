@@ -45,13 +45,16 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
 
         var roles = await _userManager.GetRolesAsync(user);
         var accessToken = _tokenService.GenerateAccessToken(user.Id, user.Email ?? "", string.Join(",", roles));
+        var userResponse = _mapper.Map<UserResponse>(user);
+        userResponse.Roles = roles.ToList();
+
 
         return new AuthResponse
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
             ExpiresAt = expiry,
-            User = _mapper.Map<UserResponse>(user)
+            User = userResponse
         };
     }
 }

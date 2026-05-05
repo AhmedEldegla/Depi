@@ -14,9 +14,9 @@ public interface IGuildRepository : IRepository<Guild>
 public interface IGuildMemberRepository : IRepository<GuildMember>
 {
     Task<List<GuildMember>> GetByGuildIdAsync(Guid guildId);
-    Task<List<GuildMember>> GetByUserIdAsync(string userId);
-    Task<GuildMember?> GetMembershipAsync(Guid guildId, string userId);
-    Task<bool> IsMemberAsync(Guid guildId, string userId);
+    Task<List<GuildMember>> GetByUserIdAsync(Guid userId);
+    Task<GuildMember?> GetMembershipAsync(Guid guildId, Guid userId);
+    Task<bool> IsMemberAsync(Guid guildId, Guid userId);
 }
 
 public interface IGuildProjectRepository : IRepository<GuildProject>

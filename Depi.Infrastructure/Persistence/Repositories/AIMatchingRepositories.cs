@@ -13,10 +13,9 @@ public class SkillMatchRepository : Repository<SkillMatch>, ISkillMatchRepositor
         return await _dbSet.Where(m => m.ProjectId == projectId).ToListAsync();
     }
 
-    public async Task<List<SkillMatch>> GetByFreelancerIdAsync(string freelancerId)
+    public async Task<List<SkillMatch>> GetByFreelancerIdAsync(Guid freelancerId)
     {
-        var freelancerGuid = Guid.Parse(freelancerId);
-        return await _dbSet.Where(m => m.FreelancerId == freelancerGuid.ToString()).ToListAsync();
+        return await _dbSet.Where(m => m.FreelancerId == freelancerId).ToListAsync();
     }
 
     public async Task<List<SkillMatch>> GetMatchesAboveThresholdAsync(Guid projectId, decimal threshold)
@@ -34,10 +33,9 @@ public class ProjectMatchRepository : Repository<ProjectMatch>, IProjectMatchRep
         return await _dbSet.Where(m => m.ProjectId == projectId).OrderByDescending(m => m.OverallScore).ToListAsync();
     }
 
-    public async Task<List<ProjectMatch>> GetByFreelancerIdAsync(string freelancerId)
+    public async Task<List<ProjectMatch>> GetByFreelancerIdAsync(Guid freelancerId)
     {
-        var freelancerGuid = Guid.Parse(freelancerId);
-        return await _dbSet.Where(m => m.FreelancerId == freelancerGuid.ToString()).ToListAsync();
+        return await _dbSet.Where(m => m.FreelancerId == freelancerId).ToListAsync();
     }
 
     public async Task<ProjectMatch?> GetBestMatchForProjectAsync(Guid projectId)
@@ -60,10 +58,9 @@ public class JobMatchRepository : Repository<JobMatch>, IJobMatchRepository
         return await _dbSet.Where(m => m.JobId == jobId).OrderByDescending(m => m.OverallScore).ToListAsync();
     }
 
-    public async Task<List<JobMatch>> GetByFreelancerIdAsync(string freelancerId)
+    public async Task<List<JobMatch>> GetByFreelancerIdAsync(Guid freelancerId)
     {
-        var freelancerGuid = Guid.Parse(freelancerId);
-        return await _dbSet.Where(m => m.FreelancerId == freelancerGuid.ToString()).ToListAsync();
+        return await _dbSet.Where(m => m.FreelancerId == freelancerId).ToListAsync();
     }
 
     public async Task<JobMatch?> GetBestMatchForJobAsync(Guid jobId)
@@ -81,10 +78,9 @@ public class FreelancerScoreRepository : Repository<FreelancerScore>, IFreelance
 {
     public FreelancerScoreRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<FreelancerScore?> GetByFreelancerIdAsync(string freelancerId)
+    public async Task<FreelancerScore?> GetByFreelancerIdAsync(Guid freelancerId)
     {
-        var freelancerGuid = Guid.Parse(freelancerId);
-        return await _dbSet.FirstOrDefaultAsync(s => s.FreelancerId == freelancerGuid.ToString());
+        return await _dbSet.FirstOrDefaultAsync(s => s.FreelancerId == freelancerId);
     }
 
     public async Task<List<FreelancerScore>> GetTopScoredAsync(int count)
@@ -112,25 +108,22 @@ public class RecommendationRepository : Repository<Recommendation>, IRecommendat
 {
     public RecommendationRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<List<Recommendation>> GetByUserIdAsync(string userId)
+    public async Task<List<Recommendation>> GetByUserIdAsync(Guid userId)
     {
-        var userGuid = Guid.Parse(userId);
-        return await _dbSet.Where(r => r.UserId == userGuid.ToString()).OrderByDescending(r => r.ConfidenceScore).ToListAsync();
+        return await _dbSet.Where(r => r.UserId == userId).OrderByDescending(r => r.ConfidenceScore).ToListAsync();
     }
 
-    public async Task<List<Recommendation>> GetActiveForUserAsync(string userId)
+    public async Task<List<Recommendation>> GetActiveForUserAsync(Guid userId)
     {
-        var userGuid = Guid.Parse(userId);
         return await _dbSet
-            .Where(r => r.UserId == userGuid.ToString() && r.ExpiresAt > DateTime.UtcNow && !r.IsViewed)
+            .Where(r => r.UserId == userId && r.ExpiresAt > DateTime.UtcNow && !r.IsViewed)
             .OrderByDescending(r => r.ConfidenceScore)
             .ToListAsync();
     }
 
-    public async Task<List<Recommendation>> GetByTypeAsync(string userId, RecommendationType type)
+    public async Task<List<Recommendation>> GetByTypeAsync(Guid userId, RecommendationType type)
     {
-        var userGuid = Guid.Parse(userId);
-        return await _dbSet.Where(r => r.UserId == userGuid.ToString() && r.Type == type).ToListAsync();
+        return await _dbSet.Where(r => r.UserId == userId && r.Type == type).ToListAsync();
     }
 }
 
@@ -153,10 +146,9 @@ public class AILogRepository : Repository<AILog>, IAILogRepository
 {
     public AILogRepository(ApplicationDbContext context) : base(context) { }
 
-    public async Task<List<AILog>> GetByUserIdAsync(string userId)
+    public async Task<List<AILog>> GetByUserIdAsync(Guid userId)
     {
-        var userGuid = Guid.Parse(userId);
-        return await _dbSet.Where(l => l.UserId == userGuid.ToString()).OrderByDescending(l => l.CreatedAt).ToListAsync();
+        return await _dbSet.Where(l => l.UserId == userId).OrderByDescending(l => l.CreatedAt).ToListAsync();
     }
 
     public async Task<List<AILog>> GetByActionAsync(string action)

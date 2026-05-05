@@ -84,7 +84,7 @@ public class GetFreelancerScoreQueryHandler : IRequestHandler<GetFreelancerScore
 
     public async Task<FreelancerScoreResponse?> Handle(GetFreelancerScoreQuery r, CancellationToken ct)
     {
-        var score = await _repo.GetByFreelancerIdAsync(r.FreelancerId.ToString());
+        var score = await _repo.GetByFreelancerIdAsync(r.FreelancerId);
         if (score == null) return null;
         return new FreelancerScoreResponse
         {
@@ -127,7 +127,7 @@ public class GetRecommendationsQueryHandler : IRequestHandler<GetRecommendations
 
     public async Task<List<RecommendationResponse>> Handle(GetRecommendationsQuery r, CancellationToken ct)
     {
-        var recs = await _repo.GetActiveForUserAsync(r.UserId.ToString());
+        var recs = await _repo.GetActiveForUserAsync(r.UserId);
         return recs.Select(rec => new RecommendationResponse
         {
             Id = rec.Id, Type = rec.Type, TargetType = rec.TargetType,

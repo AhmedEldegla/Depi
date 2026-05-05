@@ -8,6 +8,7 @@ using DEPI.Application.Repositories.HeadHunters;
 using DEPI.Application.Repositories.Learning;
 using DEPI.Application.Repositories.Recruitment;
 using DEPI.Application.Repositories.Students;
+using DEPI.Application.Repositories.Verifications;
 using DEPI.Application.Repositories.Wallets;
 using DEPI.Domain.Entities.Identity;
 using DEPI.Domain.Entities.Media;
@@ -20,16 +21,23 @@ using DEPI.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using AutoMapper;
+using Microsoft.Extensions.Configuration;
 
 namespace DEPI.Infrastructure.DependencyInjection;
 
 public static class InfrastructureDI
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
+
+        var connectionString = config.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found");
+
+
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString)
-                .EnableSensitiveDataLogging());
+            options.UseSqlServer(connectionString));
+                
 
         services.AddIdentity<User, Role>(options =>
         {
@@ -75,6 +83,8 @@ public static class InfrastructureDI
         services.AddScoped<IPortfolioItemRepository, PortfolioItemRepository>();
         services.AddScoped<IServicePackageRepository, ServicePackageRepository>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IIdentityVerificationRepository, IdentityVerificationRepository>();
 
         // Company repositories
         services.AddScoped<ICompanyRepository, CompanyRepository>();
@@ -143,6 +153,7 @@ public static class InfrastructureDI
 
         // Student repositories
         services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
+
 
         return services;
     }

@@ -5,7 +5,7 @@ namespace DEPI.Application.Repositories.HeadHunters;
 
 public interface IHeadHunterRepository : IRepository<HeadHunter>
 {
-    Task<HeadHunter?> GetByUserIdAsync(string userId);
+    Task<HeadHunter?> GetByUserIdAsync(Guid userId);
     Task<List<HeadHunter>> GetActiveAsync();
     Task<List<HeadHunter>> GetBySpecializationAsync(string specialization);
     Task<List<HeadHunter>> GetTopPerformersAsync(int count);
@@ -15,8 +15,8 @@ public interface IHeadHunterAssignmentRepository : IRepository<HeadHunterAssignm
 {
     Task<List<HeadHunterAssignment>> GetByHunterIdAsync(Guid hunterId);
     Task<List<HeadHunterAssignment>> GetActiveAssignmentsAsync();
-    Task<List<HeadHunterAssignment>> GetByClientIdAsync(string clientId);
-    Task<HeadHunterAssignment?> GetActiveAssignmentAsync(Guid hunterId, string clientId);
+    Task<List<HeadHunterAssignment>> GetByClientIdAsync(Guid clientId);
+    Task<HeadHunterAssignment?> GetActiveAssignmentAsync(Guid hunterId, Guid clientId);
 }
 
 public interface ITalentRecommendationRepository : IRepository<TalentRecommendation>
@@ -24,5 +24,5 @@ public interface ITalentRecommendationRepository : IRepository<TalentRecommendat
     Task<List<TalentRecommendation>> GetByAssignmentIdAsync(Guid assignmentId);
     Task<List<TalentRecommendation>> GetByHunterIdAsync(Guid hunterId);
     Task<List<TalentRecommendation>> GetPendingAsync(Guid assignmentId);
-    Task<List<TalentRecommendation>> GetByUserIdAsync(string userId);
+    Task<List<TalentRecommendation>> GetByUserIdAsync(Guid userId);
 }

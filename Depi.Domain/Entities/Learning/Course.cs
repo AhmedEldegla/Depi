@@ -12,7 +12,7 @@ public class Course : AuditableEntity
     public string Summary { get; set; } = string.Empty;
     public string ThumbnailUrl { get; set; } = string.Empty;
     public string VideoUrl { get; set; } = string.Empty;
-    public string InstructorId { get; set; } = string.Empty;
+    public Guid InstructorId { get; set; }
     public CourseLevel Level { get; set; } = CourseLevel.Beginner;
     public CourseStatus Status { get; set; } = CourseStatus.Draft;
     public decimal Price { get; set; }
@@ -56,7 +56,7 @@ public class CourseLesson : AuditableEntity
 public class CourseEnrollment : AuditableEntity
 {
     public Guid CourseId { get; set; }
-    public string StudentId { get; set; } = string.Empty;
+    public Guid StudentId { get; set; }
     public decimal PricePaid { get; set; }
     public string Currency { get; set; } = "USD";
     public EnrollmentStatus Status { get; set; } = EnrollmentStatus.Active;
@@ -73,7 +73,7 @@ public class CourseEnrollment : AuditableEntity
 public class LessonProgress : AuditableEntity
 {
     public Guid LessonId { get; set; }
-    public string StudentId { get; set; } = string.Empty;
+    public Guid StudentId { get; set; }
     public bool IsCompleted { get; set; }
     public int WatchTime { get; set; }
     public DateTime? CompletedAt { get; set; }
@@ -89,7 +89,7 @@ public class LearningPath : AuditableEntity
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string ThumbnailUrl { get; set; } = string.Empty;
-    public string InstructorId { get; set; } = string.Empty;
+    public Guid InstructorId { get; set; }
     public LearningPathStatus Status { get; set; } = LearningPathStatus.Draft;
     public bool IsFeatured { get; set; }
     public bool IsPublished { get; set; }
@@ -134,12 +134,11 @@ public class Certification : AuditableEntity
 public class CourseReview : AuditableEntity
 {
     public Guid CourseId { get; set; }
-    public string StudentId { get; set; } = string.Empty;
+    public Guid StudentId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
     public int Rating { get; set; }
     public bool IsVerifiedPurchase { get; set; }
-    public int HelpfulnessScore { get; set; }
 
     public virtual Course Course { get; set; } = null!;
     public virtual User Student { get; set; } = null!;

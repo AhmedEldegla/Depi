@@ -5,8 +5,8 @@ namespace DEPI.Domain.Entities.Coaching;
 
 public class CoachingSession : AuditableEntity
 {
-    public string CoachId { get; set; } = string.Empty;
-    public string StudentId { get; set; } = string.Empty;
+    public Guid CoachId { get; set; }
+    public Guid StudentId { get; set; }
     public string SessionType { get; set; } = "Weekly";
     public DateTime ScheduledAt { get; set; }
     public DateTime? StartedAt { get; set; }
@@ -33,7 +33,7 @@ public class CoachingSession : AuditableEntity
 
 public class CoachProfile : AuditableEntity
 {
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
     public string Specialization { get; set; } = string.Empty;
     public string Bio { get; set; } = string.Empty;
     public int YearsOfExperience { get; set; }

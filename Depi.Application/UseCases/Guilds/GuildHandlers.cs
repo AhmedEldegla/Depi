@@ -40,7 +40,7 @@ public class CreateGuildCommandHandler : IRequestHandler<CreateGuildCommand, Gui
     public CreateGuildCommandHandler(IGuildRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<GuildResponse> Handle(CreateGuildCommand r, CancellationToken ct)
     {
-        var guild = new Guild { LeaderId = r.LeaderId.ToString(), Name = r.Request.Name, Description = r.Request.Description, Specialization = r.Request.Specialization, ImageUrl = r.Request.ImageUrl ?? "", Requirements = r.Request.Requirements ?? "", MaxMembers = r.Request.MaxMembers, MinProfileScore = r.Request.MinProfileScore, MemberCount = 1 };
+        var guild = new Guild { LeaderId = r.LeaderId, Name = r.Request.Name, Description = r.Request.Description, Specialization = r.Request.Specialization, ImageUrl = r.Request.ImageUrl ?? "", Requirements = r.Request.Requirements ?? "", MaxMembers = r.Request.MaxMembers, MinProfileScore = r.Request.MinProfileScore, MemberCount = 1 };
         await _repo.AddAsync(guild, ct);
         return _mapper.Map<GuildResponse>(guild);
     }
@@ -53,7 +53,7 @@ public class UpdateGuildCommandHandler : IRequestHandler<UpdateGuildCommand, Gui
     public async Task<GuildResponse> Handle(UpdateGuildCommand r, CancellationToken ct)
     {
         var guild = await _repo.GetByIdAsync(r.GuildId, ct) ?? throw new KeyNotFoundException(Errors.NotFound("Guild"));
-        if (guild.LeaderId != r.UserId.ToString()) throw new UnauthorizedAccessException(Errors.Forbidden());
+        if (guild.LeaderId != r.UserId) throw new UnauthorizedAccessException(Errors.Forbidden());
         guild.UpdateInfo(r.Request.Name, r.Request.Description, r.Request.Specialization, r.Request.IsAcceptingMembers, r.Request.MaxMembers, r.Request.MinProfileScore);
         await _repo.UpdateAsync(guild, ct);
         return _mapper.Map<GuildResponse>(guild);
@@ -68,8 +68,8 @@ public class JoinGuildCommandHandler : IRequestHandler<JoinGuildCommand, GuildMe
     {
         var guild = await _guildRepo.GetByIdAsync(r.GuildId, ct) ?? throw new KeyNotFoundException(Errors.NotFound("Guild"));
         if (!guild.IsAcceptingMembers) throw new InvalidOperationException("Guild is not accepting members");
-        if (await _memberRepo.IsMemberAsync(r.GuildId, r.UserId.ToString())) throw new InvalidOperationException(Errors.AlreadyExists("Membership"));
-        var member = new GuildMember { GuildId = r.GuildId, UserId = r.UserId.ToString(), Role = "Member", Skills = r.Skills, JoinedAt = DateTime.UtcNow };
+        if (await _memberRepo.IsMemberAsync(r.GuildId, r.UserId)) throw new InvalidOperationException(Errors.AlreadyExists("Membership"));
+        var member = new GuildMember { GuildId = r.GuildId, UserId = r.UserId, Role = "Member", Skills = r.Skills, JoinedAt = DateTime.UtcNow };
         await _memberRepo.AddAsync(member, ct);
         guild.MemberCount++; await _guildRepo.UpdateAsync(guild, ct);
         return _mapper.Map<GuildMemberResponse>(member);
@@ -82,7 +82,7 @@ public class LeaveGuildCommandHandler : IRequestHandler<LeaveGuildCommand>
     public LeaveGuildCommandHandler(IGuildMemberRepository memberRepo, IGuildRepository guildRepo) { _memberRepo = memberRepo; _guildRepo = guildRepo; }
     public async Task Handle(LeaveGuildCommand r, CancellationToken ct)
     {
-        var membership = await _memberRepo.GetMembershipAsync(r.GuildId, r.UserId.ToString()) ?? throw new KeyNotFoundException(Errors.NotFound("Membership"));
+        var membership = await _memberRepo.GetMembershipAsync(r.GuildId, r.UserId) ?? throw new KeyNotFoundException(Errors.NotFound("Membership"));
         membership.Leave(); await _memberRepo.UpdateAsync(membership, ct);
         var guild = await _guildRepo.GetByIdAsync(r.GuildId, ct);
         if (guild != null) { guild.MemberCount--; await _guildRepo.UpdateAsync(guild, ct); }
@@ -95,7 +95,7 @@ public class GetMyGuildsQueryHandler : IRequestHandler<GetMyGuildsQuery, List<Gu
     public GetMyGuildsQueryHandler(IGuildMemberRepository memberRepo, IGuildRepository guildRepo, IMapper mapper) { _memberRepo = memberRepo; _guildRepo = guildRepo; _mapper = mapper; }
     public async Task<List<GuildResponse>> Handle(GetMyGuildsQuery r, CancellationToken ct)
     {
-        var memberships = await _memberRepo.GetByUserIdAsync(r.UserId.ToString());
+        var memberships = await _memberRepo.GetByUserIdAsync(r.UserId);
         var guilds = new List<Guild>();
         foreach (var m in memberships) { var g = await _guildRepo.GetByIdAsync(m.GuildId, ct); if (g != null) guilds.Add(g); }
         return _mapper.Map<List<GuildResponse>>(guilds);
