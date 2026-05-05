@@ -16,8 +16,7 @@ public record RegisterRequest(
 
 public record LoginRequest(
     string Email,
-    string Password,
-    string? TwoFactorCode
+    string Password
 );
 
 public record RefreshTokenRequest(
@@ -84,20 +83,4 @@ public class AuthResponse
     public string RefreshToken { get; set; } = string.Empty;
     public DateTime ExpiresAt { get; set; }
     public UserResponse User { get; set; } = new();
-}
-
-public class LoginResponse
-{
-    public string AccessToken { get; set; } = string.Empty;
-    public string RefreshToken { get; set; } = string.Empty;
-    public DateTime AccessTokenExpiry { get; set; }
-    public DateTime RefreshTokenExpiry { get; set; }
-    public UserResponse User { get; set; } = new();
-}
-
-public class TokenResponse
-{
-    public string AccessToken { get; set; } = string.Empty;
-    public string RefreshToken { get; set; } = string.Empty;
-    public DateTime ExpiresAt { get; set; }
 }
