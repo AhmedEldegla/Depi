@@ -9,6 +9,11 @@ using DEPI.Application.DTOs.HeadHunter;
 namespace DEPI.Application.UseCases.HeadHunters;
 
 
+public record CreateHeadHunterRequest(string Specialization, string Bio);
+public record CreateAssignmentRequest(string Requirements, string? ProjectId, string? JobId, DateTime? ExpiresAt);
+public record SubmitTalentRequest(Guid AssignmentId, Guid RecommendedUserId, string Reason, string AIAnalysis, decimal MatchScore, decimal ProfileScore, decimal SkillsScore, decimal ExperienceScore);
+public record ReviewTalentRequest(Guid RecommendationId, bool IsAccepted, string? Feedback);
+
 public record GetHeadHuntersQuery(string? Specialization) : IRequest<List<HeadHunterResponse>>;
 public record GetTopHeadHuntersQuery(int Count) : IRequest<List<HeadHunterResponse>>;
 public record CreateHeadHunterCommand(Guid UserId, CreateHeadHunterRequest Request) : IRequest<HeadHunterResponse>;
