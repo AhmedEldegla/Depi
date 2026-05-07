@@ -16,12 +16,10 @@ public class Review : AuditableEntity
     public string Comment { get; private set; } = string.Empty;
     public string? Response { get; private set; }
     public DateTime? ResponseAt { get; private set; }
-
     public virtual User? Reviewer { get; private set; }
     public virtual User? Reviewee { get; private set; }
     public virtual Project? Project { get; private set; }
     public virtual Contract? Contract { get; private set; }
-
     private Review() { }
 
     public static Review Create(
@@ -50,7 +48,6 @@ public class Review : AuditableEntity
             Comment = comment.Trim()
         };
     }
-
     public void AddResponse(string response)
     {
         if (string.IsNullOrWhiteSpace(response))
@@ -59,7 +56,6 @@ public class Review : AuditableEntity
         Response = response.Trim();
         ResponseAt = DateTime.UtcNow;
     }
-
     public void UpdateRating(int newRating)
     {
         if (newRating < 1 || newRating > 5)
@@ -70,7 +66,6 @@ public class Review : AuditableEntity
 
         Rating = newRating;
     }
-
     public void UpdateComment(string newComment)
     {
         if (string.IsNullOrWhiteSpace(newComment))

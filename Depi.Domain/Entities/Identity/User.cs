@@ -17,7 +17,6 @@ public class User : IdentityUser<Guid>
     public bool IsDeleted { get; private set; }
     public DateTime? DeletedAt { get; set; }
     public Guid? DeletedBy { get; set; }
-
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
     public string FullName => $"{FirstName} {LastName}";

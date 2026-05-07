@@ -1,6 +1,6 @@
 @Depi.API_HostAddress = http://localhost:5113
 
-GET {{Depi.API_HostAddress}}/weatherforecast/
+GET {{Depi.API_HostAddress}}/swagger/index.html/
 Accept: application/json
 
 ###

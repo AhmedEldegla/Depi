@@ -11,6 +11,7 @@ public enum ErrorCode
     InternalError = 1004,
     Conflict = 1005,
     BadRequest = 1006,
+    IdentityNotVerified = 1007,
 
     ProjectNotFound = 2000,
     ProjectTitleRequired = 2001,
@@ -58,4 +59,7 @@ public static class Errors
 
     public static string InvalidCredentials()
         => "Invalid email or password";
+
+    public static string IdentityNotVerified(string action)
+        => $"يجب توثيق هويتك قبل {action}";
 }

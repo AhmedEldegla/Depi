@@ -1,12 +1,23 @@
 namespace DEPI.Application.DTOs.Identity;
 
-public record RoleDto(Guid Id, string Name, string NormalizedName);
+public class RoleDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string NormalizedName { get; set; } = string.Empty;
+}
 
-public record PermissionDto(Guid Id, string Name, string NormalizedName);
+public class PermissionDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string NormalizedName { get; set; } = string.Empty;
+}
 
-public record UserRoleDto(
-    Guid UserId,
-    Guid RoleId,
-    string RoleName,
-    List<PermissionDto> Permissions
-);
+public class UserRoleDto
+{
+    public Guid UserId { get; set; }
+    public Guid RoleId { get; set; }
+    public string RoleName { get; set; } = string.Empty;
+    public List<PermissionDto> Permissions { get; set; } = new();
+}

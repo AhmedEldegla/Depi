@@ -1,5 +1,6 @@
+using AutoMapper;
 using DEPI.Application.DTOs.Proposals;
-using DEPI.Application.Repositories.Proposals;
+using DEPI.Application.Interfaces;
 using MediatR;
 
 namespace DEPI.Application.UseCases.Proposals.Queries;
@@ -9,35 +10,18 @@ public record GetMyProposalsQuery(Guid FreelancerId) : IRequest<List<ProposalRes
 public class GetMyProposalsQueryHandler : IRequestHandler<GetMyProposalsQuery, List<ProposalResponse>>
 {
     private readonly IProposalRepository _proposalRepository;
+    private readonly IMapper _mapper;
 
-    public GetMyProposalsQueryHandler(IProposalRepository proposalRepository)
+    public GetMyProposalsQueryHandler(IProposalRepository proposalRepository, IMapper mapper)
     {
         _proposalRepository = proposalRepository;
+        _mapper = mapper;
     }
 
     public async Task<List<ProposalResponse>> Handle(GetMyProposalsQuery request, CancellationToken cancellationToken)
     {
         var proposals = await _proposalRepository.GetByFreelancerAsync(request.FreelancerId);
-        return proposals.Select(MapToResponse).ToList();
-    }
-
-    private static ProposalResponse MapToResponse(Domain.Entities.Proposals.Proposal proposal)
-    {
-        return new ProposalResponse(
-            Id: proposal.Id,
-            ProjectId: proposal.ProjectId,
-            ProjectTitle: proposal.Project?.Title ?? "Unknown",
-            FreelancerId: proposal.FreelancerId,
-            FreelancerName: proposal.Freelancer?.FullName ?? "Unknown",
-            ProposedAmount: proposal.ProposedAmount,
-            EstimatedDays: proposal.EstimatedDays,
-            CoverLetter: proposal.CoverLetter,
-            Status: proposal.Status,
-            RejectionReason: proposal.RejectionReason,
-            AcceptedAt: proposal.AcceptedAt,
-            CreatedAt: proposal.CreatedAt,
-            UpdatedAt: proposal.UpdatedAt
-        );
+        return _mapper.Map<List<ProposalResponse>>(proposals);
     }
 }
 
@@ -46,34 +30,17 @@ public record GetProposalsByProjectQuery(Guid ProjectId) : IRequest<List<Proposa
 public class GetProposalsByProjectQueryHandler : IRequestHandler<GetProposalsByProjectQuery, List<ProposalResponse>>
 {
     private readonly IProposalRepository _proposalRepository;
+    private readonly IMapper _mapper;
 
-    public GetProposalsByProjectQueryHandler(IProposalRepository proposalRepository)
+    public GetProposalsByProjectQueryHandler(IProposalRepository proposalRepository, IMapper mapper)
     {
         _proposalRepository = proposalRepository;
+        _mapper = mapper;
     }
 
     public async Task<List<ProposalResponse>> Handle(GetProposalsByProjectQuery request, CancellationToken cancellationToken)
     {
         var proposals = await _proposalRepository.GetByProjectAsync(request.ProjectId);
-        return proposals.Select(MapToResponse).ToList();
-    }
-
-    private static ProposalResponse MapToResponse(Domain.Entities.Proposals.Proposal proposal)
-    {
-        return new ProposalResponse(
-            Id: proposal.Id,
-            ProjectId: proposal.ProjectId,
-            ProjectTitle: proposal.Project?.Title ?? "Unknown",
-            FreelancerId: proposal.FreelancerId,
-            FreelancerName: proposal.Freelancer?.FullName ?? "Unknown",
-            ProposedAmount: proposal.ProposedAmount,
-            EstimatedDays: proposal.EstimatedDays,
-            CoverLetter: proposal.CoverLetter,
-            Status: proposal.Status,
-            RejectionReason: proposal.RejectionReason,
-            AcceptedAt: proposal.AcceptedAt,
-            CreatedAt: proposal.CreatedAt,
-            UpdatedAt: proposal.UpdatedAt
-        );
+        return _mapper.Map<List<ProposalResponse>>(proposals);
     }
 }
