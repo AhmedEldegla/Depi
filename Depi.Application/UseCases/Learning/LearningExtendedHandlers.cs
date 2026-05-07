@@ -3,6 +3,7 @@ using DEPI.Application.Common;
 using DEPI.Application.Repositories.Learning;
 using DEPI.Domain.Entities.Learning;
 using MediatR;
+using DEPI.Application.DTOs.Learning;
 
 namespace DEPI.Application.UseCases.Learning;
 
