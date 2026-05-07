@@ -1,4 +1,5 @@
-﻿using DEPI.Application.Common;
+﻿using AutoMapper;
+using DEPI.Application.Common;
 using DEPI.Application.DTOs.Projects;
 using DEPI.Application.Repositories.Projects;
 using DEPI.Application.UseCases.Projects.CreateProject;
@@ -39,10 +40,14 @@ public class UpdateProjectCommandHandler
     : IRequestHandler<UpdateProjectCommand, Result<ProjectResponse>>
 {
     private readonly IProjectRepository _projectRepository;
+    private readonly IMapper _mapper;
 
-    public UpdateProjectCommandHandler(IProjectRepository projectRepository)
+    public UpdateProjectCommandHandler(
+    IProjectRepository projectRepository,
+    IMapper mapper)
     {
         _projectRepository = projectRepository;
+        _mapper = mapper;
     }
 
     public async Task<Result<ProjectResponse>> Handle(
@@ -79,8 +84,8 @@ public class UpdateProjectCommandHandler
            
             await _projectRepository.UpdateAsync(project);
 
-            
-            return Result<ProjectResponse>.Success(project.ToResponse());
+
+            return Result<ProjectResponse>.Success(_mapper.Map<ProjectResponse>(project));
         }
         catch (Exception)
         {

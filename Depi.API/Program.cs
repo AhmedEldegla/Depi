@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-using DEPI.Application.UseCases.Projects.CreateProject;
-using DEPI.Infrastructure.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-
-namespace Depi.API
-=======
 using DEPI.API.Middleware;
 using DEPI.API.SeedData;
 using DEPI.Application.DependencyInjection;
@@ -21,23 +12,18 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Threading.RateLimiting;
 
-
-
 var builder = WebApplication.CreateBuilder(args);
 
-#region services
+#region Services
 
 builder.Services.AddInfrastructure(builder.Configuration);
-
 builder.Services.AddApplication();
-
 builder.Services.AddAuthorization();
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? new[] { "https://localhost:3000", "https://localhost:5001" };
 
 builder.Services.AddCors(options =>
->>>>>>> master
 {
     options.AddDefaultPolicy(policy =>
     {
@@ -47,7 +33,6 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -73,72 +58,6 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-<<<<<<< HEAD
-            var builder = WebApplication.CreateBuilder(args);
-
-            // MediatR
-            builder.Services.AddMediatR(cfg =>
-                cfg.RegisterServicesFromAssembly(typeof(CreateProjectCommand).Assembly));
-
-            // Connection String
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-            if (string.IsNullOrEmpty(connectionString))
-                throw new Exception("DefaultConnection is missing in appsettings.json");
-
-            // Infrastructure
-            builder.Services.AddInfrastructure(connectionString);
-
-            // Authentication (JWT)
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-
-                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!)
-                        )
-                    };
-                });
-
-            // Authorization
-            builder.Services.AddAuthorization();
-
-            // Controllers
-            builder.Services.AddControllers();
-
-            // Swagger
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-            var app = builder.Build();
-
-            // Middleware Pipeline
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.MapControllers();
-
-            app.Run();
-        }
-    }
-}
-=======
             new OpenApiSecurityScheme
             {
                 Reference = new OpenApiReference
@@ -155,13 +74,11 @@ builder.Services.AddSwaggerGen(c =>
 #endregion
 
 #region JWT Authentication
+
 var secretKey = builder.Configuration["Jwt:SecretKey"];
 
 if (string.IsNullOrEmpty(secretKey))
-{
-    throw new InvalidOperationException(
-        "JWT SecretKey is not configured. Set 'Jwt:SecretKey' in appsettings or environment variable.");
-}
+    throw new InvalidOperationException("JWT SecretKey is not configured.");
 
 var issuer = builder.Configuration["Jwt:Issuer"] ?? "DEPI.SmartFreelance";
 var audience = builder.Configuration["Jwt:Audience"] ?? "DEPI.SmartFreelance.API";
@@ -174,6 +91,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -187,9 +105,11 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.FromMinutes(5)
     };
 });
+
 #endregion
 
 #region Rate Limiting
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("fixed", config =>
@@ -202,8 +122,8 @@ builder.Services.AddRateLimiter(options =>
 
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
-#endregion
 
+#endregion
 
 builder.Services.AddHealthChecks();
 
@@ -214,6 +134,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+
     await SeedData.SeedAsync(db, userManager, roleManager);
 }
 
@@ -226,12 +147,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
+
 app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();
->>>>>>> master
