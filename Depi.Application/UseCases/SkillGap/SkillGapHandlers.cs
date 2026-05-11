@@ -3,6 +3,7 @@ using DEPI.Application.Interfaces;
 using DEPI.Application.Repositories.Learning;
 using DEPI.Application.Repositories.Recruitment;
 using MediatR;
+using DEPI.Application.DTOs.SkillGap;
 
 namespace DEPI.Application.UseCases.SkillGap;
 
