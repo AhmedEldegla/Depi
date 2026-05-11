@@ -1,26 +1,16 @@
-using DEPI.Application.DTOs.Profiles;
+using DEPI.Application.DTOs.SkillGap;
 using DEPI.Application.Interfaces;
 using DEPI.Application.Repositories.Learning;
 using DEPI.Application.Repositories.Recruitment;
-using DEPI.Domain.Entities.Learning;
 using MediatR;
 using DEPI.Application.DTOs.SkillGap;
 
 namespace DEPI.Application.UseCases.SkillGap;
 
-
-
-public class SkillGapSummaryResponse
-{
-    public string FreelancerName { get; set; } = string.Empty;
-    public int TotalActiveMarketOpportunities { get; set; }
-    public List<string> CurrentSkills { get; set; } = new();
-    public List<SkillGapResponse> Gaps { get; set; } = new();
-    public int GapsFound { get; set; }
-    public string Summary { get; set; } = string.Empty;
-}
-
+// Queries (الطلبات)
 public record GetSkillGapAnalysisQuery(Guid UserId) : IRequest<SkillGapSummaryResponse>;
+
+// Handlers 
 
 public class GetSkillGapAnalysisQueryHandler : IRequestHandler<GetSkillGapAnalysisQuery, SkillGapSummaryResponse>
 {
@@ -29,8 +19,17 @@ public class GetSkillGapAnalysisQueryHandler : IRequestHandler<GetSkillGapAnalys
     private readonly ICourseRepository _courseRepo;
     private readonly ILearningPathRepository _pathRepo;
 
-    public GetSkillGapAnalysisQueryHandler(IProjectRepository projectRepo, IJobRepository jobRepo, ICourseRepository courseRepo, ILearningPathRepository pathRepo)
-    { _projectRepo = projectRepo; _jobRepo = jobRepo; _courseRepo = courseRepo; _pathRepo = pathRepo; }
+    public GetSkillGapAnalysisQueryHandler(
+        IProjectRepository projectRepo,
+        IJobRepository jobRepo,
+        ICourseRepository courseRepo,
+        ILearningPathRepository pathRepo)
+    {
+        _projectRepo = projectRepo;
+        _jobRepo = jobRepo;
+        _courseRepo = courseRepo;
+        _pathRepo = pathRepo;
+    }
 
     public async Task<SkillGapSummaryResponse> Handle(GetSkillGapAnalysisQuery r, CancellationToken ct)
     {
@@ -47,8 +46,7 @@ public class GetSkillGapAnalysisQueryHandler : IRequestHandler<GetSkillGapAnalys
             var avgBudget = (project.BudgetMin + project.BudgetMax) / 2 ?? project.FixedPrice ?? 0;
             foreach (var skill in skills)
             {
-                if (!marketSkills.ContainsKey(skill))
-                    marketSkills[skill] = new MarketSkillData();
+                if (!marketSkills.ContainsKey(skill)) marketSkills[skill] = new MarketSkillData();
                 marketSkills[skill].ProjectCount++;
                 marketSkills[skill].TotalBudget += avgBudget;
                 totalOpportunities++;
@@ -61,8 +59,7 @@ public class GetSkillGapAnalysisQueryHandler : IRequestHandler<GetSkillGapAnalys
             var avgBudget = (job.BudgetMin + job.BudgetMax) / 2;
             foreach (var skill in skills)
             {
-                if (!marketSkills.ContainsKey(skill))
-                    marketSkills[skill] = new MarketSkillData();
+                if (!marketSkills.ContainsKey(skill)) marketSkills[skill] = new MarketSkillData();
                 marketSkills[skill].JobCount++;
                 marketSkills[skill].TotalBudget += avgBudget;
                 totalOpportunities++;
@@ -80,9 +77,19 @@ public class GetSkillGapAnalysisQueryHandler : IRequestHandler<GetSkillGapAnalys
             var avgBudget = data.ProjectCount + data.JobCount > 0 ? data.TotalBudget / (data.ProjectCount + data.JobCount) : 0;
 
             var matchingCourses = allCourses
-                .Where(c => (c.Title.Contains(kv.Key, StringComparison.OrdinalIgnoreCase) || c.Category.Contains(kv.Key, StringComparison.OrdinalIgnoreCase) || c.Tags.Contains(kv.Key, StringComparison.OrdinalIgnoreCase)) && c.IsPublished)
+                .Where(c => (c.Title.Contains(kv.Key, StringComparison.OrdinalIgnoreCase) ||
+                             c.Category.Contains(kv.Key, StringComparison.OrdinalIgnoreCase) ||
+                             c.Tags.Contains(kv.Key, StringComparison.OrdinalIgnoreCase)) && c.IsPublished)
                 .Take(3)
-                .Select(c => new CourseRecommendation { CourseId = c.Id, Title = c.Title, Level = c.Level.ToString(), Price = c.Price, IsFree = c.IsFree, Url = $"/courses/{c.Id}" })
+                .Select(c => new CourseRecommendation
+                {
+                    CourseId = c.Id,
+                    Title = c.Title,
+                    Level = c.Level.ToString(),
+                    Price = c.Price,
+                    IsFree = c.IsFree,
+                    Url = $"/courses/{c.Id}"
+                })
                 .ToList();
 
             return new SkillGapResponse

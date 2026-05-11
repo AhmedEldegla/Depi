@@ -19,9 +19,8 @@ using DEPI.Domain.Entities.Coaching;
 using DEPI.Domain.Entities.Students;
 using DEPI.Domain.Entities.Wallets;
 using DEPI.Domain.Entities.AIMatching;
-using DEPI.Application.DTOs.HeadHunter;
-using DEPI.Application.DTOs.Recruitment;
-using DEPI.Application.DTOs.Learning;
+using DEPI.Application.DTOs.Companies;
+using DEPI.Application.DTOs.Connects;
 
 namespace DEPI.Application.MappingProfiles;
 
