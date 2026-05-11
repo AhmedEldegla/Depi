@@ -1,4 +1,3 @@
-// Projects/CreateProject/CreateProjectCommand.cs
 using DEPI.Application.Common;
 using DEPI.Application.DTOs.Projects;
 using DEPI.Domain.Entities.Projects;

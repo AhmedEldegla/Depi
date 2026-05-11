@@ -6,8 +6,28 @@ using MediatR;
 
 namespace DEPI.Application.UseCases.Coaching;
 
-public class CoachingSessionResponse { public Guid Id { get; set; } public string SessionType { get; set; } = string.Empty; public DateTime ScheduledAt { get; set; } public SessionStatus Status { get; set; } public string Agenda { get; set; } = string.Empty; public string Notes { get; set; } = string.Empty; public string Feedback { get; set; } = string.Empty; public string ActionItems { get; set; } = string.Empty; public int Rating { get; set; } }
-public class CoachProfileResponse { public Guid Id { get; set; } public string Specialization { get; set; } = string.Empty; public string Bio { get; set; } = string.Empty; public int YearsOfExperience { get; set; } public int TotalSessions { get; set; } public int ActiveStudents { get; set; } public decimal AverageRating { get; set; } public decimal HourlyRate { get; set; } public string Certifications { get; set; } = string.Empty; }
+public class CoachingSessionResponse { 
+    public Guid Id { get; set; }
+    public string SessionType { get; set; } = string.Empty;
+    public DateTime ScheduledAt { get; set; }
+    public SessionStatus Status { get; set; }
+    public string Agenda { get; set; } = string.Empty;
+    public string Notes { get; set; } = string.Empty;
+    public string Feedback { get; set; } = string.Empty;
+    public string ActionItems { get; set; } = string.Empty;
+    public int Rating { get; set; }
+}
+public class CoachProfileResponse { 
+    public Guid Id { get; set; }
+    public string Specialization { get; set; } = string.Empty;
+    public string Bio { get; set; } = string.Empty;
+    public int YearsOfExperience { get; set; }
+    public int TotalSessions { get; set; }
+    public int ActiveStudents { get; set; }
+    public decimal AverageRating { get; set; }
+    public decimal HourlyRate { get; set; }
+    public string Certifications { get; set; } = string.Empty;
+}
 
 public record ScheduleSessionRequest(Guid CoachId, DateTime ScheduledAt, string SessionType, string Agenda);
 public record CompleteSessionRequest(Guid SessionId, string Notes, string Feedback, string ActionItems, int Rating);
@@ -22,21 +42,24 @@ public record RegisterCoachCommand(Guid UserId, RegisterCoachRequest Request) : 
 
 public class GetMySessionsQueryHandler : IRequestHandler<GetMySessionsQuery, List<CoachingSessionResponse>>
 {
-    private readonly ICoachingSessionRepository _repo; private readonly IMapper _mapper;
+    private readonly ICoachingSessionRepository _repo;
+    private readonly IMapper _mapper;
     public GetMySessionsQueryHandler(ICoachingSessionRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<List<CoachingSessionResponse>> Handle(GetMySessionsQuery r, CancellationToken ct) => _mapper.Map<List<CoachingSessionResponse>>((await _repo.GetByCoachIdAsync(r.UserId)).Union(await _repo.GetByStudentIdAsync(r.UserId)).DistinctBy(s => s.Id));
 }
 
 public class GetUpcomingSessionsQueryHandler : IRequestHandler<GetUpcomingSessionsQuery, List<CoachingSessionResponse>>
 {
-    private readonly ICoachingSessionRepository _repo; private readonly IMapper _mapper;
+    private readonly ICoachingSessionRepository _repo;
+    private readonly IMapper _mapper;
     public GetUpcomingSessionsQueryHandler(ICoachingSessionRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<List<CoachingSessionResponse>> Handle(GetUpcomingSessionsQuery r, CancellationToken ct) => _mapper.Map<List<CoachingSessionResponse>>(await _repo.GetUpcomingAsync(r.UserId));
 }
 
 public class ScheduleSessionCommandHandler : IRequestHandler<ScheduleSessionCommand, CoachingSessionResponse>
 {
-    private readonly ICoachingSessionRepository _repo; private readonly IMapper _mapper;
+    private readonly ICoachingSessionRepository _repo;
+    private readonly IMapper _mapper;
     public ScheduleSessionCommandHandler(ICoachingSessionRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<CoachingSessionResponse> Handle(ScheduleSessionCommand r, CancellationToken ct)
     {
@@ -48,7 +71,8 @@ public class ScheduleSessionCommandHandler : IRequestHandler<ScheduleSessionComm
 
 public class CompleteSessionCommandHandler : IRequestHandler<CompleteSessionCommand, CoachingSessionResponse>
 {
-    private readonly ICoachingSessionRepository _repo; private readonly ICoachProfileRepository _coachRepo; private readonly IMapper _mapper;
+    private readonly ICoachingSessionRepository _repo;
+    private readonly ICoachProfileRepository _coachRepo; private readonly IMapper _mapper;
     public CompleteSessionCommandHandler(ICoachingSessionRepository repo, ICoachProfileRepository coachRepo, IMapper mapper) { _repo = repo; _coachRepo = coachRepo; _mapper = mapper; }
     public async Task<CoachingSessionResponse> Handle(CompleteSessionCommand r, CancellationToken ct)
     {
@@ -63,14 +87,16 @@ public class CompleteSessionCommandHandler : IRequestHandler<CompleteSessionComm
 
 public class GetCoachesQueryHandler : IRequestHandler<GetCoachesQuery, List<CoachProfileResponse>>
 {
-    private readonly ICoachProfileRepository _repo; private readonly IMapper _mapper;
+    private readonly ICoachProfileRepository _repo;
+    private readonly IMapper _mapper;
     public GetCoachesQueryHandler(ICoachProfileRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<List<CoachProfileResponse>> Handle(GetCoachesQuery r, CancellationToken ct) => _mapper.Map<List<CoachProfileResponse>>(await _repo.GetAvailableCoachesAsync());
 }
 
 public class RegisterCoachCommandHandler : IRequestHandler<RegisterCoachCommand, CoachProfileResponse>
 {
-    private readonly ICoachProfileRepository _repo; private readonly IMapper _mapper;
+    private readonly ICoachProfileRepository _repo;
+    private readonly IMapper _mapper;
     public RegisterCoachCommandHandler(ICoachProfileRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
     public async Task<CoachProfileResponse> Handle(RegisterCoachCommand r, CancellationToken ct)
     {
