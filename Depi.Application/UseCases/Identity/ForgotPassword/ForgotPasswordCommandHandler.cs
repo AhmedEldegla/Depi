@@ -3,6 +3,7 @@ using DEPI.Application.Interfaces;
 using DEPI.Domain.Entities.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace DEPI.Application.UseCases.Identity.ForgotPassword;
@@ -11,15 +12,18 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
 {
     private readonly UserManager<User> _userManager;
     private readonly IEmailService _emailService;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<ForgotPasswordCommandHandler> _logger;
 
     public ForgotPasswordCommandHandler(
         UserManager<User> userManager,
         IEmailService emailService,
+        IConfiguration configuration,
         ILogger<ForgotPasswordCommandHandler> logger)
     {
         _userManager = userManager;
         _emailService = emailService;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -27,15 +31,16 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
     {
         var user = await _userManager.FindByEmailAsync(command.Request.Email);
 
-        if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
+        if (user == null)
         {
-            _logger.LogWarning("Password reset requested for non-existent or unconfirmed email: {Email}", command.Request.Email);
+            _logger.LogWarning("Password reset requested for non-existent email: {Email}", command.Request.Email);
             return;
         }
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var encodedToken = Uri.EscapeDataString(token);
-        var resetLink = $"https://localhost:3000/reset-password?email={command.Request.Email}&token={encodedToken}";
+        var frontendUrl = _configuration["App:FrontendBaseUrl"] ?? "https://localhost:3000";
+        var resetLink = $"{frontendUrl}/reset-password?email={command.Request.Email}&token={encodedToken}";
 
         var subject = "إعادة تعيين كلمة المرور - DEPI";
         var body = $@"

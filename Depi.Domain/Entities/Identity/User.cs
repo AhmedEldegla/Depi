@@ -10,13 +10,6 @@ public class User : IdentityUser<Guid>
     private readonly List<IDomainEvent> _domainEvents = new();
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-    public Guid CreatedBy { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public Guid? UpdatedBy { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-    public bool IsDeleted { get; private set; }
-    public DateTime? DeletedAt { get; set; }
-    public Guid? DeletedBy { get; set; }
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
     public string FullName => $"{FirstName} {LastName}";
@@ -31,6 +24,13 @@ public class User : IdentityUser<Guid>
     public DateTime? LastLoginAt { get; private set; }
     public string? RefreshToken { get; private set; }
     public DateTime? RefreshTokenExpiry { get; private set; }
+    public Guid CreatedBy { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public Guid? UpdatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public bool IsDeleted { get; private set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public virtual ICollection<UserRole> UserRoles { get; private set; } = new List<UserRole>();
     public virtual ICollection<UserSession> Sessions { get; private set; } = new List<UserSession>();
