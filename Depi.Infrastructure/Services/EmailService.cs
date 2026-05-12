@@ -19,39 +19,47 @@ public class EmailService : IEmailService
 
     public async Task SendAsync(string toEmail, string subject, string body)
     {
-        var smtpServer = _configuration["Email:SmtpServer"];
-        var smtpPort = int.TryParse(_configuration["Email:SmtpPort"], out var port) ? port : 587;
-        var fromEmail = _configuration["Email:FromEmail"] ?? "noreply@depi.com";
-        var fromName = _configuration["Email:FromName"] ?? "DEPI Platform";
-        var username = _configuration["Email:Username"];
-        var password = _configuration["Email:Password"];
-
-        if (string.IsNullOrEmpty(smtpServer))
+        try
         {
-            _logger.LogInformation(
-                "[DEV EMAIL] To: {To}, Subject: {Subject}, Body: {Body}",
-                toEmail, subject, body);
-            return;
+            var smtpServer = _configuration["Email:SmtpServer"];
+            var smtpPort = int.TryParse(_configuration["Email:SmtpPort"], out var port) ? port : 587;
+            var fromEmail = _configuration["Email:FromEmail"] ?? "noreply@depi.com";
+            var fromName = _configuration["Email:FromName"] ?? "DEPI Platform";
+            var username = _configuration["Email:Username"];
+            var password = _configuration["Email:Password"];
+
+            if (string.IsNullOrEmpty(smtpServer))
+            {
+                _logger.LogInformation(
+                    "[DEV EMAIL] To: {To}, Subject: {Subject}, Body: {Body}",
+                    toEmail, subject, body);
+                return;
+            }
+
+            using var mail = new MailMessage
+            {
+                From = new MailAddress(fromEmail, fromName),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            };
+            mail.To.Add(toEmail);
+
+            using var smtp = new SmtpClient(smtpServer, smtpPort)
+            {
+                EnableSsl = true,
+                Credentials = string.IsNullOrEmpty(username)
+                    ? null
+                    : new NetworkCredential(username, password)
+            };
+
+            await smtp.SendMailAsync(mail);
+            _logger.LogInformation("Email sent to {To}: {Subject}", toEmail, subject);
         }
-
-        using var mail = new MailMessage
+        catch (Exception ex)
         {
-            From = new MailAddress(fromEmail, fromName),
-            Subject = subject,
-            Body = body,
-            IsBodyHtml = true
-        };
-        mail.To.Add(toEmail);
-
-        using var smtp = new SmtpClient(smtpServer, smtpPort)
-        {
-            EnableSsl = true,
-            Credentials = string.IsNullOrEmpty(username)
-                ? null
-                : new NetworkCredential(username, password)
-        };
-
-        await smtp.SendMailAsync(mail);
-        _logger.LogInformation("Email sent to {To}: {Subject}", toEmail, subject);
+            _logger.LogError(ex, "Failed to send email to {To}: {Error}", toEmail, ex.Message);
+            throw;
+        }
     }
 }

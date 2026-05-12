@@ -1,42 +1,63 @@
 using AutoMapper;
 using DEPI.Application.Common;
+using DEPI.Application.DTOs.Connects; 
 using DEPI.Application.Repositories.Wallets;
 using DEPI.Domain.Entities.Wallets;
+using DEPI.Domain.Enums; 
 using MediatR;
 
 namespace DEPI.Application.UseCases.Connects;
 
-public class EarningRuleResponse { public Guid Id { get; set; } public string Name { get; set; } = string.Empty; public string Description { get; set; } = string.Empty; public int ConnectsAwarded { get; set; } public string Trigger { get; set; } = string.Empty; public int MaxPerDay { get; set; } }
-
-public class ConnectEarningResponse { public Guid Id { get; set; } public int ConnectsEarned { get; set; } public string TriggerType { get; set; } = string.Empty; public string SourceDescription { get; set; } = string.Empty; public DateTime EarnedAt { get; set; } }
-
-public class EarningSummaryResponse { public int TotalEarned { get; set; } public int TotalPurchased { get; set; } public int TotalSpent { get; set; } public int AvailableBalance { get; set; } public int EarnedToday { get; set; } public List<EarningRuleResponse> ActiveRules { get; set; } = new(); public List<ConnectEarningResponse> RecentEarnings { get; set; } = new(); }
-
-public record TriggerEarningRequest(EarningTrigger Trigger, string Description, Guid? ProjectId, Guid? ReviewId, Guid? MessageId);
-
+// Commands & Queries 
 public record GetEarningRulesQuery : IRequest<List<EarningRuleResponse>>;
 public record GetEarningSummaryQuery(Guid UserId) : IRequest<EarningSummaryResponse>;
 public record TriggerEarningCommand(Guid UserId, TriggerEarningRequest Request) : IRequest<ConnectEarningResponse?>;
 public record GetEarningHistoryQuery(Guid UserId) : IRequest<List<ConnectEarningResponse>>;
 
+// Handlers 
+
 public class GetEarningRulesQueryHandler : IRequestHandler<GetEarningRulesQuery, List<EarningRuleResponse>>
 {
-    private readonly IConnectEarningRuleRepository _repo; private readonly IMapper _mapper;
-    public GetEarningRulesQueryHandler(IConnectEarningRuleRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
-    public async Task<List<EarningRuleResponse>> Handle(GetEarningRulesQuery r, CancellationToken ct) => _mapper.Map<List<EarningRuleResponse>>(await _repo.GetActiveRulesAsync());
+    private readonly IConnectEarningRuleRepository _repo;
+    private readonly IMapper _mapper;
+
+    public GetEarningRulesQueryHandler(IConnectEarningRuleRepository repo, IMapper mapper)
+    {
+        _repo = repo;
+        _mapper = mapper;
+    }
+
+    public async Task<List<EarningRuleResponse>> Handle(GetEarningRulesQuery r, CancellationToken ct)
+        => _mapper.Map<List<EarningRuleResponse>>(await _repo.GetActiveRulesAsync());
 }
 
 public class GetEarningSummaryQueryHandler : IRequestHandler<GetEarningSummaryQuery, EarningSummaryResponse>
 {
-    private readonly IConnectEarningRepository _earningRepo; private readonly IConnectEarningRuleRepository _ruleRepo;
-    private readonly IConnectPurchaseRepository _purchaseRepo; private readonly IConnectUsageRepository _usageRepo; private readonly IMapper _mapper;
-    public GetEarningSummaryQueryHandler(IConnectEarningRepository eRepo, IConnectEarningRuleRepository rRepo, IConnectPurchaseRepository pRepo, IConnectUsageRepository uRepo, IMapper mapper)
-    { _earningRepo = eRepo; _ruleRepo = rRepo; _purchaseRepo = pRepo; _usageRepo = uRepo; _mapper = mapper; }
+    private readonly IConnectEarningRepository _earningRepo;
+    private readonly IConnectEarningRuleRepository _ruleRepo;
+    private readonly IConnectPurchaseRepository _purchaseRepo;
+    private readonly IConnectUsageRepository _usageRepo;
+    private readonly IMapper _mapper;
+
+    public GetEarningSummaryQueryHandler(
+        IConnectEarningRepository eRepo,
+        IConnectEarningRuleRepository rRepo,
+        IConnectPurchaseRepository pRepo,
+        IConnectUsageRepository uRepo,
+        IMapper mapper)
+    {
+        _earningRepo = eRepo;
+        _ruleRepo = rRepo;
+        _purchaseRepo = pRepo;
+        _usageRepo = uRepo;
+        _mapper = mapper;
+    }
 
     public async Task<EarningSummaryResponse> Handle(GetEarningSummaryQuery r, CancellationToken ct)
     {
         var uid = r.UserId;
         var todayStart = DateTime.UtcNow.Date;
+
         return new EarningSummaryResponse
         {
             TotalEarned = await _earningRepo.GetTotalEarnedAsync(uid),
@@ -51,17 +72,41 @@ public class GetEarningSummaryQueryHandler : IRequestHandler<GetEarningSummaryQu
 
 public class TriggerEarningCommandHandler : IRequestHandler<TriggerEarningCommand, ConnectEarningResponse?>
 {
-    private readonly IConnectEarningRuleRepository _ruleRepo; private readonly IConnectEarningRepository _earningRepo; private readonly IMapper _mapper;
-    public TriggerEarningCommandHandler(IConnectEarningRuleRepository rRepo, IConnectEarningRepository eRepo, IMapper mapper) { _ruleRepo = rRepo; _earningRepo = eRepo; _mapper = mapper; }
+    private readonly IConnectEarningRuleRepository _ruleRepo;
+    private readonly IConnectEarningRepository _earningRepo;
+    private readonly IMapper _mapper;
+
+    public TriggerEarningCommandHandler(IConnectEarningRuleRepository rRepo, IConnectEarningRepository eRepo, IMapper mapper)
+    {
+        _ruleRepo = rRepo;
+        _earningRepo = eRepo;
+        _mapper = mapper;
+    }
 
     public async Task<ConnectEarningResponse?> Handle(TriggerEarningCommand r, CancellationToken ct)
     {
         var rule = await _ruleRepo.GetByTriggerAsync(r.Request.Trigger);
         if (rule == null) return null;
+
         var uid = r.UserId;
         var todayEarned = await _earningRepo.GetTodayEarnedAsync(uid, r.Request.Trigger);
-        if (rule.MaxPerDay > 0 && todayEarned >= rule.MaxPerDay * rule.ConnectsAwarded) return null;
-        var earning = new ConnectEarning { UserId = uid, RuleId = rule.Id, ConnectsEarned = rule.ConnectsAwarded, TriggerType = rule.Trigger.ToString(), SourceDescription = r.Request.Description, RelatedProjectId = r.Request.ProjectId, RelatedReviewId = r.Request.ReviewId, RelatedMessageId = r.Request.MessageId, EarnedAt = DateTime.UtcNow };
+
+        if (rule.MaxPerDay > 0 && todayEarned >= rule.MaxPerDay * rule.ConnectsAwarded)
+            return null;
+
+        var earning = new ConnectEarning
+        {
+            UserId = uid,
+            RuleId = rule.Id,
+            ConnectsEarned = rule.ConnectsAwarded,
+            TriggerType = rule.Trigger.ToString(),
+            SourceDescription = r.Request.Description,
+            RelatedProjectId = r.Request.ProjectId,
+            RelatedReviewId = r.Request.ReviewId,
+            RelatedMessageId = r.Request.MessageId,
+            EarnedAt = DateTime.UtcNow
+        };
+
         await _earningRepo.AddAsync(earning, ct);
         return _mapper.Map<ConnectEarningResponse>(earning);
     }
@@ -69,7 +114,15 @@ public class TriggerEarningCommandHandler : IRequestHandler<TriggerEarningComman
 
 public class GetEarningHistoryQueryHandler : IRequestHandler<GetEarningHistoryQuery, List<ConnectEarningResponse>>
 {
-    private readonly IConnectEarningRepository _repo; private readonly IMapper _mapper;
-    public GetEarningHistoryQueryHandler(IConnectEarningRepository repo, IMapper mapper) { _repo = repo; _mapper = mapper; }
-    public async Task<List<ConnectEarningResponse>> Handle(GetEarningHistoryQuery r, CancellationToken ct) => _mapper.Map<List<ConnectEarningResponse>>(await _repo.GetByUserIdAsync(r.UserId));
+    private readonly IConnectEarningRepository _repo;
+    private readonly IMapper _mapper;
+
+    public GetEarningHistoryQueryHandler(IConnectEarningRepository repo, IMapper mapper)
+    {
+        _repo = repo;
+        _mapper = mapper;
+    }
+
+    public async Task<List<ConnectEarningResponse>> Handle(GetEarningHistoryQuery r, CancellationToken ct)
+        => _mapper.Map<List<ConnectEarningResponse>>(await _repo.GetByUserIdAsync(r.UserId));
 }
