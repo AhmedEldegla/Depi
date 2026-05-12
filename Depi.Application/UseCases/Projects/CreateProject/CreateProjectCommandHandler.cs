@@ -2,10 +2,12 @@ using AutoMapper;
 using DEPI.Application.Common;
 using DEPI.Application.DTOs.Projects;
 using DEPI.Application.Interfaces;
+using DEPI.Application.Settings;
 using DEPI.Domain.Entities.Projects;
 using DEPI.Domain.Enums;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace DEPI.Application.UseCases.Projects.CreateProject;
 
@@ -29,25 +31,33 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
     private readonly IProjectRepository _projectRepository;
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
+    private readonly FeatureFlags _features;
 
     public CreateProjectCommandHandler(
         IProjectRepository projectRepository,
         IUserRepository userRepository,
-        IMapper mapper)
+        IMapper mapper,
+        IOptions<FeatureFlags> features)
     {
         _projectRepository = projectRepository;
         _userRepository = userRepository;
         _mapper = mapper;
+        _features = features.Value;
     }
 
     public async Task<Result<ProjectResponse>> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
     {
         try
         {
+<<<<<<< HEAD
             var owner = await _userRepository.GetByIdAsync(request.OwnerId)
                 ?? throw new KeyNotFoundException(Errors.NotFound("User"));
 
             owner.EnsureVerifiedFor("نشر المشروع");
+=======
+            var owner = await _userRepository.GetByIdAsync(request.OwnerId) ?? throw new KeyNotFoundException(Errors.NotFound("User"));
+            if (_features.RequireIdentityVerification) owner.EnsureVerifiedFor("نشر المشروع");
+>>>>>>> 17850f6881fb0a21fd477dc669ad86cb84082a89
 
             var project = Project.Create(
                 request.OwnerId,

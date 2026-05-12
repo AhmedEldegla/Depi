@@ -23,6 +23,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using AutoMapper;
 using Microsoft.Extensions.Configuration;
+using DEPI.Application.Settings;
 
 namespace DEPI.Infrastructure.DependencyInjection;
 
@@ -154,6 +155,7 @@ public static class InfrastructureDI
         // Student repositories
         services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
 
+        services.Configure<FeatureFlags>(config.GetSection("Features"));
 
         return services;
     }
