@@ -3,7 +3,8 @@ using DEPI.Application.Interfaces;
 using DEPI.Application.Repositories.Learning;
 using DEPI.Application.Repositories.Recruitment;
 using MediatR;
-using DEPI.Application.DTOs.SkillGap;
+using DEPI.Application.UseCases.DTOs.SkillGap;
+using DEPI.Application.UseCases.DTOs.SkillGap;
 
 namespace DEPI.Application.UseCases.SkillGap;
 
@@ -92,7 +93,7 @@ public class GetSkillGapAnalysisQueryHandler : IRequestHandler<GetSkillGapAnalys
                 })
                 .ToList();
 
-            return new SkillGapResponse
+            return new Application.DTOs.SkillGap.SkillGapResponse
             {
                 SkillName = kv.Key,
                 MarketDemand = total,

@@ -1,4 +1,4 @@
-﻿namespace DEPI.Application.DTOs.SkillGap;
+﻿namespace DEPI.Application.UseCases.DTOs.SkillGap;
 
 public class SkillGapResponse
 {

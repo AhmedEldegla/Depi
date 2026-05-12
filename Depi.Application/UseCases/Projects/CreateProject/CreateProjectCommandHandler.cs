@@ -49,15 +49,11 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
     {
         try
         {
-<<<<<<< HEAD
             var owner = await _userRepository.GetByIdAsync(request.OwnerId)
                 ?? throw new KeyNotFoundException(Errors.NotFound("User"));
 
             owner.EnsureVerifiedFor("نشر المشروع");
-=======
-            var owner = await _userRepository.GetByIdAsync(request.OwnerId) ?? throw new KeyNotFoundException(Errors.NotFound("User"));
             if (_features.RequireIdentityVerification) owner.EnsureVerifiedFor("نشر المشروع");
->>>>>>> 17850f6881fb0a21fd477dc669ad86cb84082a89
 
             var project = Project.Create(
                 request.OwnerId,
