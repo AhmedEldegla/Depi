@@ -1,12 +1,20 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DEPI.Domain.Common.Base;
+using DEPI.Domain.Entities.Identity;
+using DEPI.Domain.Entities.Companies;
+using DEPI.Domain.Enums;
+using DEPI.Domain.Entities.Community;
 
 namespace Depi.Domain.Entities.Community
 {
-    class PostBookmark
+    public class PostBookmark : AuditableEntity
     {
+        public Guid PostId { get; set; }
+        public Guid UserId { get; set; }
+
+        public virtual CommunityPost Post { get; set; } = null!;
+        public virtual User User { get; set; } = null!;
     }
 }
