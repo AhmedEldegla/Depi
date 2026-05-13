@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using DEPI.Application.UseCases.Identity.GetCurrentUser;
+using Microsoft.AspNetCore.Authorization;
+using DEPI.Application.UseCases.Community;
+using MediatR;
+
 
 namespace Depi.API.Controllers
 {
@@ -8,6 +12,10 @@ namespace Depi.API.Controllers
     [ApiController]
     public class CommunitiesController : ControllerBase
     {
+        private readonly IMediator _mediator;
+        public CommunitiesController(IMediator mediator) => _mediator = mediator;
+
+
         [HttpGet("posts")]
         [AllowAnonymous]
         public async Task<IActionResult> GetPosts( [FromQuery] bool? featured,
