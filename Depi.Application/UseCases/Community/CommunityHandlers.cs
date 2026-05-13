@@ -3,6 +3,10 @@ using DEPI.Application.Common;
 using DEPI.Application.Repositories.Community;
 using DEPI.Domain.Entities.Community;
 using MediatR;
+using Depi.Domain.Enums;
+using Depi.Domain.Entities.Community;
+
+
 
 namespace DEPI.Application.UseCases.Community;
 

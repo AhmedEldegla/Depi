@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using DEPI.Domain.Common.Base;
 using DEPI.Domain.Entities.Identity;
 using DEPI.Domain.Entities.Companies;
-using DEPI.Domain.Enums;
+using Depi.Domain.Enums;
 using DEPI.Domain.Entities.Community;
+
 namespace Depi.Domain.Entities.Community
 {
     public class PostShare : AuditableEntity

@@ -19,6 +19,8 @@ using DEPI.Domain.Entities.Coaching;
 using DEPI.Domain.Entities.Students;
 using DEPI.Domain.Entities.Wallets;
 using DEPI.Domain.Entities.AIMatching;
+using Depi.Domain.Entities.Community;
+
 
 namespace DEPI.Application.MappingProfiles;
 

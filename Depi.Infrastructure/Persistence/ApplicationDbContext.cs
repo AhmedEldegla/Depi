@@ -20,6 +20,8 @@ using DEPI.Domain.Entities.Verifications;
 using DEPI.Domain.Entities.Wallets;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Depi.Domain.Entities.Community;
+
 
 namespace DEPI.Infrastructure.Persistence;
 
