@@ -2,10 +2,12 @@ using AutoMapper;
 using DEPI.Application.Common;
 using DEPI.Application.DTOs.Projects;
 using DEPI.Application.Interfaces;
+using DEPI.Application.Settings;
 using DEPI.Domain.Entities.Projects;
 using DEPI.Domain.Enums;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace DEPI.Application.UseCases.Projects.CreateProject;
 
@@ -29,15 +31,18 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
     private readonly IProjectRepository _projectRepository;
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
+    private readonly FeatureFlags _features;
 
     public CreateProjectCommandHandler(
         IProjectRepository projectRepository,
         IUserRepository userRepository,
-        IMapper mapper)
+        IMapper mapper,
+        IOptions<FeatureFlags> features)
     {
         _projectRepository = projectRepository;
         _userRepository = userRepository;
         _mapper = mapper;
+        _features = features.Value;
     }
 
     public async Task<Result<ProjectResponse>> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
