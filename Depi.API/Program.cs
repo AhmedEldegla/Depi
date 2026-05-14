@@ -12,16 +12,12 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Threading.RateLimiting;
 
-
-
 var builder = WebApplication.CreateBuilder(args);
 
-#region services
+#region Services
 
 builder.Services.AddInfrastructure(builder.Configuration);
-
 builder.Services.AddApplication();
-
 builder.Services.AddAuthorization();
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
@@ -37,7 +33,6 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -79,13 +74,11 @@ builder.Services.AddSwaggerGen(c =>
 #endregion
 
 #region JWT Authentication
+
 var secretKey = builder.Configuration["Jwt:SecretKey"];
 
 if (string.IsNullOrEmpty(secretKey))
-{
-    throw new InvalidOperationException(
-        "JWT SecretKey is not configured. Set 'Jwt:SecretKey' in appsettings or environment variable.");
-}
+    throw new InvalidOperationException("JWT SecretKey is not configured.");
 
 var issuer = builder.Configuration["Jwt:Issuer"] ?? "DEPI.SmartFreelance";
 var audience = builder.Configuration["Jwt:Audience"] ?? "DEPI.SmartFreelance.API";
@@ -98,6 +91,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -111,9 +105,11 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.FromMinutes(5)
     };
 });
+
 #endregion
 
 #region Rate Limiting
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("fixed", config =>
@@ -126,8 +122,8 @@ builder.Services.AddRateLimiter(options =>
 
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
-#endregion
 
+#endregion
 
 builder.Services.AddHealthChecks();
 
@@ -138,6 +134,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+
     await SeedData.SeedAsync(db, userManager, roleManager);
 }
 
@@ -153,10 +150,12 @@ app.UseSwaggerUI();
 
 
 app.UseHttpsRedirection();
+
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
+
 app.MapHealthChecks("/health");
 app.MapControllers();
 
