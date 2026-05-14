@@ -49,19 +49,38 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
     {
         try
         {
-            var owner = await _userRepository.GetByIdAsync(request.OwnerId) ?? throw new KeyNotFoundException(Errors.NotFound("User"));
-            if (_features.RequireIdentityVerification) owner.EnsureVerifiedFor("نشر المشروع");
+            var owner = await _userRepository.GetByIdAsync(request.OwnerId)
+                ?? throw new KeyNotFoundException(Errors.NotFound("User"));
 
-            var project = Project.Create(request.OwnerId, request.Title, request.Description, request.Type, request.BudgetMin, request.BudgetMax, request.FixedPrice, request.RequiredLevel, request.Deadline);
+            owner.EnsureVerifiedFor("نشر المشروع");
+
+            var project = Project.Create(
+                request.OwnerId,
+                request.Title,
+                request.Description,
+                request.Type,
+                request.BudgetMin,
+                request.BudgetMax,
+                request.FixedPrice,
+                request.RequiredLevel,
+                request.Deadline);
+
             project.SetCreatedBy(request.OwnerId);
 
             if (!string.IsNullOrWhiteSpace(request.Skills))
                 project.SetSkills(request.Skills);
 
             await _projectRepository.AddAsync(project);
+
             return Result<ProjectResponse>.Success(_mapper.Map<ProjectResponse>(project));
         }
-        catch (ArgumentException ex) { return Result<ProjectResponse>.Failure(ex.Message, ErrorCode.ValidationError); }
-        catch (Exception) { return Result<ProjectResponse>.Failure(Errors.Internal(), ErrorCode.InternalError); }
+        catch (ArgumentException ex)
+        {
+            return Result<ProjectResponse>.Failure(ex.Message, ErrorCode.ValidationError);
+        }
+        catch (Exception)
+        {
+            return Result<ProjectResponse>.Failure(Errors.Internal(), ErrorCode.InternalError);
+        }
     }
 }
