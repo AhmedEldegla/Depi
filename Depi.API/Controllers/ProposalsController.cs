@@ -1,4 +1,4 @@
-using DEPI.Application.DTOs.Proposals;
+﻿using DEPI.Application.DTOs.Proposals;
 using DEPI.Application.UseCases.Proposals.SubmitProposal;
 using DEPI.Application.UseCases.Proposals.AcceptProposal;
 using DEPI.Application.UseCases.Proposals.RejectProposal;
@@ -7,6 +7,7 @@ using DEPI.Application.UseCases.Proposals.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DEPI.API.Controllers;
 
@@ -16,8 +17,13 @@ namespace DEPI.API.Controllers;
 public class ProposalsController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public ProposalsController(IMediator mediator) => _mediator = mediator;
 
+    public ProposalsController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    // Submit Proposal (Freelancer / Student / Admin)
     [HttpPost]
     [Authorize(Roles = "Admin,Freelancer,Student")]
     public async Task<IActionResult> Submit([FromBody] SubmitProposalRequest request, CancellationToken ct)
@@ -27,6 +33,7 @@ public class ProposalsController : ControllerBase
         return Created("", result);
     }
 
+    // Accept Proposal (Client / Admin)
     [HttpPost("{id:guid}/accept")]
     [Authorize(Roles = "Admin,Client")]
     public async Task<IActionResult> Accept(Guid id, CancellationToken ct)
@@ -36,6 +43,7 @@ public class ProposalsController : ControllerBase
         return Ok(result);
     }
 
+    // Reject Proposal (Client / Admin)
     [HttpPost("{id:guid}/reject")]
     [Authorize(Roles = "Admin,Client")]
     public async Task<IActionResult> Reject(Guid id, [FromBody] string? reason, CancellationToken ct)
@@ -45,6 +53,7 @@ public class ProposalsController : ControllerBase
         return Ok(result);
     }
 
+    // Withdraw Proposal
     [HttpPost("{id:guid}/withdraw")]
     [Authorize(Roles = "Admin,Freelancer,Student")]
     public async Task<IActionResult> Withdraw(Guid id, CancellationToken ct)
@@ -54,6 +63,7 @@ public class ProposalsController : ControllerBase
         return NoContent();
     }
 
+    // My Proposals
     [HttpGet("my-proposals")]
     [Authorize(Roles = "Admin,Freelancer,Student")]
     public async Task<IActionResult> MyProposals(CancellationToken ct)
@@ -62,6 +72,7 @@ public class ProposalsController : ControllerBase
         return Ok(result);
     }
 
+    // Proposals by Project
     [HttpGet("project/{projectId:guid}")]
     [Authorize(Roles = "Admin,Client")]
     public async Task<IActionResult> ByProject(Guid projectId, CancellationToken ct)
@@ -72,7 +83,9 @@ public class ProposalsController : ControllerBase
 
     private Guid GetCurrentUserId()
     {
-        var sub = User.FindFirst("sub")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var sub = User.FindFirst("sub")?.Value ??
+                  User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
         return Guid.TryParse(sub, out var uid) ? uid : Guid.Empty;
     }
 }
