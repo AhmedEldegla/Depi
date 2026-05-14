@@ -2,6 +2,7 @@ namespace DEPI.Domain.Entities.Messaging;
 
 using DEPI.Domain.Common.Base;
 using DEPI.Domain.Entities.Identity;
+using Depi.Domain.Enums;
 
 public class Notification : AuditableEntity
 {
@@ -54,14 +55,3 @@ public class Notification : AuditableEntity
     }
 }
 
-public enum NotificationType
-{
-    System = 1,
-    Message = 2,
-    Proposal = 3,
-    Contract = 4,
-    Milestone = 5,
-    Payment = 6,
-    Review = 7,
-    Project = 8
-}
