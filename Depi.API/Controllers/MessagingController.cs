@@ -4,6 +4,8 @@ using DEPI.Application.UseCases.Messaging.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using DEPI.Application.UseCases.Messaging;
+using Depi.Application.UseCases.Messaging;
 
 namespace DEPI.API.Controllers;
 
@@ -107,48 +109,48 @@ public class ConversationsController : ControllerBase
     }
 }
 
-[ApiController]
-[Route("api/[controller]")]
-[Authorize]
-public class NotificationsController : ControllerBase
-{
-    private readonly IMediator _mediator;
+//[ApiController]
+//[Route("api/[controller]")]
+//[Authorize]
+//public class NotificationsController : ControllerBase
+//{
+//    private readonly IMediator _mediator;
 
-    public NotificationsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
+//    public NotificationsController(IMediator mediator)
+//    {
+//        _mediator = mediator;
+//    }
 
-    [HttpGet]
-    [ProducesResponseType(typeof(NotificationListResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll([FromQuery] bool unreadOnly = false, CancellationToken cancellationToken = default)
-    {
-        var userId = GetCurrentUserId();
-        var query = new GetNotificationsQuery(userId, unreadOnly);
-        var result = await _mediator.Send(query, cancellationToken);
-        return Ok(result);
-    }
+//    [HttpGet]
+//    [ProducesResponseType(typeof(NotificationListResponse), StatusCodes.Status200OK)]
+//    public async Task<IActionResult> GetAll([FromQuery] bool unreadOnly = false, CancellationToken cancellationToken = default)
+//    {
+//        var userId = GetCurrentUserId();
+//        var query = new GetNotificationsQuery(userId, unreadOnly);
+//        var result = await _mediator.Send(query, cancellationToken);
+//        return Ok(result);
+//    }
 
-    [HttpPost("{id:guid}/read")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> MarkAsRead(Guid id, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var command = new MarkNotificationReadCommand(id, userId);
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
-    }
+//    [HttpPost("{id:guid}/read")]
+//    [ProducesResponseType(StatusCodes.Status204NoContent)]
+//    public async Task<IActionResult> MarkAsRead(Guid id, CancellationToken cancellationToken)
+//    {
+//        try
+//        {
+//            var userId = GetCurrentUserId();
+//            var command = new MarkNotificationReadCommand(id, userId);
+//            await _mediator.Send(command, cancellationToken);
+//            return NoContent();
+//        }
+//        catch (InvalidOperationException ex)
+//        {
+//            return BadRequest(new { error = ex.Message });
+//        }
+//    }
 
-    private Guid GetCurrentUserId()
-    {
-        var userIdClaim = User.FindFirst("sub")?.Value;
-        return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
-    }
-}
+//    private Guid GetCurrentUserId()
+//    {
+//        var userIdClaim = User.FindFirst("sub")?.Value;
+//        return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+//    }
+//}

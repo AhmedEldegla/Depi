@@ -97,59 +97,7 @@ public class GetConversationMessagesQueryHandler : IRequestHandler<GetConversati
     }
 }
 
-public record GetNotificationsQuery(Guid UserId, bool UnreadOnly) : IRequest<NotificationListResponse>;
 
-public class GetNotificationsQueryHandler : IRequestHandler<GetNotificationsQuery, NotificationListResponse>
-{
-    private readonly INotificationRepository _notificationRepository;
-    private readonly IMapper _mapper;
 
-    public GetNotificationsQueryHandler(INotificationRepository notificationRepository, IMapper mapper)
-    {
-        _notificationRepository = notificationRepository;
-        _mapper = mapper;
-    }
 
-    public async Task<NotificationListResponse> Handle(GetNotificationsQuery request, CancellationToken cancellationToken)
-    {
-        var notifications = await _notificationRepository.GetByUserIdAsync(request.UserId, request.UnreadOnly);
-        var unreadCount = await _notificationRepository.GetUnreadCountAsync(request.UserId);
 
-        var responses = notifications
-            .OrderByDescending(n => n.CreatedAt)
-            .Select(n => _mapper.Map<NotificationResponse>(n))
-            .ToList();
-
-        return new NotificationListResponse
-        {
-            Notifications = responses,
-            UnreadCount = unreadCount
-        };
-    }
-}
-
-public record MarkNotificationReadCommand(Guid NotificationId, Guid UserId) : IRequest<Unit>;
-
-public class MarkNotificationReadCommandHandler : IRequestHandler<MarkNotificationReadCommand, Unit>
-{
-    private readonly INotificationRepository _notificationRepository;
-
-    public MarkNotificationReadCommandHandler(INotificationRepository notificationRepository)
-    {
-        _notificationRepository = notificationRepository;
-    }
-
-    public async Task<Unit> Handle(MarkNotificationReadCommand request, CancellationToken cancellationToken)
-    {
-        var notification = await _notificationRepository.GetByIdAsync(request.NotificationId)
-            ?? throw new KeyNotFoundException(Errors.NotFound("Notification"));
-
-        if (notification.UserId != request.UserId)
-            throw new UnauthorizedAccessException(Errors.Forbidden());
-
-        notification.MarkAsRead();
-        await _notificationRepository.UpdateAsync(notification);
-
-        return Unit.Value;
-    }
-}

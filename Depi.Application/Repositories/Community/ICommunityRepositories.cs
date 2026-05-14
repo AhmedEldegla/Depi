@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DEPI.Domain.Entities.Community;
 using DEPI.Domain.Interfaces;
+using Depi.Domain.Entities.Community;
+
 
 namespace DEPI.Application.Repositories.Community;
 

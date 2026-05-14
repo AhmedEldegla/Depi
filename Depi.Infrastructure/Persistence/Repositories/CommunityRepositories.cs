@@ -1,6 +1,9 @@
 using DEPI.Application.Repositories.Community;
 using DEPI.Domain.Entities.Community;
 using Microsoft.EntityFrameworkCore;
+using Depi.Domain.Entities.Community;
+using Depi.Domain.Enums;
+
 
 namespace DEPI.Infrastructure.Persistence.Repositories;
 
